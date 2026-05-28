@@ -16,11 +16,22 @@ describe('AppController (e2e)', () => {
     await app.init();
   });
 
-  it('/ (GET)', () => {
+  it('/health (GET)', () => {
     return request(app.getHttpServer())
-      .get('/')
+      .get('/health')
       .expect(200)
-      .expect('Hello World!');
+      .expect((response) => {
+        const body = response.body as Record<string, unknown>;
+
+        expect(body).toMatchObject({
+          name: 'Edu Platform',
+          version: '1.0.0',
+          team: 'Dev Team',
+          statusCode: 200,
+        });
+        expect(body.timestamp).toEqual(expect.any(String));
+        expect(body.uptime).toEqual(expect.any(Number));
+      });
   });
 
   afterEach(async () => {

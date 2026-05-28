@@ -1,16 +1,24 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
-import { AppService } from './app.service';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { MongooseModule } from '@nestjs/mongoose';
+import { AppController } from './app.controller';
+import { getMongooseConfig } from './config/database.config';
+import { AuthModule } from './modules/auth/auth.module';
 import { UploadsModule } from './modules/uploads/uploads.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
+      envFilePath: '.env',
       isGlobal: true,
     }),
+    MongooseModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory: getMongooseConfig,
+    }),
+    AuthModule,
     UploadsModule,
   ],
-  controllers: [],
-  providers: [AppService],
+  controllers: [AppController],
 })
 export class AppModule {}
