@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { UserRole } from '../shemas/users.schemas';
+import { UserRole } from '../../users/schemas/users.schema';
 
 export class AuthUserResponseDto {
   @ApiProperty({ example: '6659f9f7c1e9e7f0c4f0d1111' })
@@ -10,6 +10,12 @@ export class AuthUserResponseDto {
 
   @ApiProperty({ example: 'teacher@example.com' })
   readonly email: string;
+
+  @ApiProperty({
+    example:
+      'https://ui-avatars.com/api/?name=teacher&background=f97316&color=ffffff&size=128',
+  })
+  readonly avatar_url: string;
 
   @ApiProperty({ enum: UserRole, example: UserRole.TEACHER })
   readonly role: UserRole;

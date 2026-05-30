@@ -20,9 +20,9 @@ export class AuthController {
   constructor(private authService: AuthService) {}
 
   @Post('/signup')
-  @ApiOperation({ summary: 'Đăng ký tài khoản mới' })
+  @ApiOperation({ summary: 'Đăng ký tài khoản giáo viên' })
   @ApiCreatedResponse({
-    description: 'Đăng ký thành công, trả về JWT token',
+    description: 'Đăng ký tài khoản giáo viên thành công, trả về JWT token',
     type: AuthTokenResponseDto,
   })
   @ApiBadRequestResponse({ description: 'Dữ liệu gửi lên không hợp lệ' })
