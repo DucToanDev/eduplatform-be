@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 import * as bcrypt from 'bcryptjs';
 import { AuthService } from './auth.service';
-import { UserRole } from './shemas/users.schemas';
+import { UserRole } from '../users/schemas/users.schema';
 
 describe('AuthService', () => {
   let service: AuthService;
@@ -16,6 +16,10 @@ describe('AuthService', () => {
     updateOne: jest.fn(),
   };
 
+  const teacherProfileModel = {
+    create: jest.fn(),
+  };
+
   const jwtService = {
     sign: jest.fn(),
   };
@@ -24,6 +28,8 @@ describe('AuthService', () => {
     _id: '6659f9f7c1e9e7f0c4f0d1111',
     fullname: 'Nguyen Van A',
     email: 'teacher@example.com',
+    avatar_url:
+      'https://ui-avatars.com/api/?name=teacher&background=f97316&color=ffffff&size=128',
     role: UserRole.TEACHER,
     status: true,
     password: '',
@@ -31,7 +37,11 @@ describe('AuthService', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    service = new AuthService(userModel as never, jwtService as never);
+    service = new AuthService(
+      userModel as never,
+      teacherProfileModel as never,
+      jwtService as never,
+    );
     jwtService.sign.mockReturnValue('signed-jwt-token');
   });
 
@@ -55,6 +65,7 @@ describe('AuthService', () => {
         fullname: 'Nguyen Van A',
         email: 'teacher@example.com',
         password: expect.any(String),
+        role: UserRole.TEACHER,
       });
       expect(userModel.create.mock.calls[0][0].password).not.toBe(
         'password123',
@@ -66,12 +77,16 @@ describe('AuthService', () => {
         ),
       ).resolves.toBe(true);
       expect(jwtService.sign).toHaveBeenCalledWith({ id: baseUser._id });
+      expect(teacherProfileModel.create).toHaveBeenCalledWith({
+        user_id: baseUser._id,
+      });
       expect(result.data).toEqual({
         accessToken: 'signed-jwt-token',
         user: {
           id: baseUser._id,
           fullname: 'Nguyen Van A',
           email: 'teacher@example.com',
+          avatar_url: baseUser.avatar_url,
           role: UserRole.TEACHER,
           status: true,
         },
@@ -118,6 +133,7 @@ describe('AuthService', () => {
         id: baseUser._id,
         fullname: baseUser.fullname,
         email: baseUser.email,
+        avatar_url: baseUser.avatar_url,
         role: baseUser.role,
         status: baseUser.status,
       });

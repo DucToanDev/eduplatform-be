@@ -5,6 +5,7 @@ import { AppController } from './app.controller';
 import { getMongooseConfig } from './config/database.config';
 import { AuthModule } from './modules/auth/auth.module';
 import { UploadsModule } from './modules/uploads/uploads.module';
+import { UsersModule } from './modules/users/users.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { UploadsModule } from './modules/uploads/uploads.module';
       inject: [ConfigService],
       useFactory: getMongooseConfig,
     }),
+    UsersModule,
     AuthModule,
     UploadsModule,
   ],

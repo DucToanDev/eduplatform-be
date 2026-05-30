@@ -8,10 +8,11 @@ import { JwtService } from '@nestjs/jwt';
 import { InjectModel } from '@nestjs/mongoose';
 import * as bcrypt from 'bcryptjs';
 import { Model } from 'mongoose';
-import { Users } from './shemas/users.schemas';
-import { SignUpDto } from './dto/signup.dto';
-import { LoginDto } from './dto/login.dto';
+import { TeacherProfile } from '../users/schemas/teacher-profile.schema';
+import { UserRole, Users } from '../users/schemas/users.schema';
 import { AuthTokenResponseDto } from './dto/auth-token-response.dto';
+import { LoginDto } from './dto/login.dto';
+import { SignUpDto } from './dto/signup.dto';
 
 function isDuplicateKeyError(error: unknown): boolean {
   return (
@@ -27,6 +28,8 @@ export class AuthService {
   constructor(
     @InjectModel(Users.name)
     private readonly userModel: Model<Users>,
+    @InjectModel(TeacherProfile.name)
+    private readonly teacherProfileModel: Model<TeacherProfile>,
     private readonly jwtService: JwtService,
   ) {}
 
@@ -44,6 +47,7 @@ export class AuthService {
           id: String(user._id),
           fullname: user.fullname,
           email: user.email,
+          avatar_url: user.avatar_url,
           role: user.role,
           status: user.status,
         },
@@ -60,9 +64,17 @@ export class AuthService {
         fullname,
         email,
         password: hashedPassword,
+        role: UserRole.TEACHER,
       });
 
-      return this.buildAuthResponse('Đăng ký thành công', user);
+      await this.teacherProfileModel.create({
+        user_id: user._id,
+      });
+
+      return this.buildAuthResponse(
+        'Đăng ký tài khoản giáo viên thành công',
+        user,
+      );
     } catch (error) {
       if (isDuplicateKeyError(error)) {
         throw new ConflictException('Email đã được sử dụng');

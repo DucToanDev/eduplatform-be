@@ -29,7 +29,7 @@ export class Users {
   email: string;
 
   @Prop()
-  phone!: string;
+  phone?: string;
 
   @Prop({ required: true })
   password: string;
@@ -38,7 +38,7 @@ export class Users {
   status: boolean;
 
   @Prop({ type: Date })
-  last_login_at!: Date;
+  last_login_at?: Date;
 }
 
 export type UsersDocument = HydratedDocument<Users>;
