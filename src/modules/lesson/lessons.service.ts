@@ -16,15 +16,34 @@ export class LessonsService {
     return newLesson.save();
   }
 
-  async findAll(): Promise<Lesson[]> {
-    return this.lessonModel.find({ is_deleted: false }).sort({ order_index: 1 }).exec();
+  async findAll(page: number = 1, limit: number = 10): Promise<any> {
+    const skip = (page - 1) * limit;
+    const [data, total] = await Promise.all([
+      this.lessonModel
+        .find({ is_deleted: false })
+        .select('-content') // Tối ưu: Không trả về content quá dài ở danh sách
+        .sort({ order_index: 1 })
+        .skip(skip)
+        .limit(limit)
+        .exec(),
+      this.lessonModel.countDocuments({ is_deleted: false })
+    ]);
+    return { data, total, page: Number(page), limit: Number(limit) };
   }
 
-  async findByCourse(courseId: string): Promise<Lesson[]> {
-    return this.lessonModel
-      .find({ course_id: courseId, is_deleted: false })
-      .sort({ order_index: 1 })
-      .exec();
+  async findByCourse(courseId: string, page: number = 1, limit: number = 10): Promise<any> {
+    const skip = (page - 1) * limit;
+    const [data, total] = await Promise.all([
+      this.lessonModel
+        .find({ course_id: courseId, is_deleted: false })
+        .select('-content') // Tối ưu: Không trả về content quá dài ở danh sách
+        .sort({ order_index: 1 })
+        .skip(skip)
+        .limit(limit)
+        .exec(),
+      this.lessonModel.countDocuments({ course_id: courseId, is_deleted: false })
+    ]);
+    return { data, total, page: Number(page), limit: Number(limit) };
   }
 
   async findOne(id: string): Promise<Lesson> {

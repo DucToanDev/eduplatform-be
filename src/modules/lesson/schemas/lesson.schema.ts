@@ -3,7 +3,7 @@ import { Document, Types } from 'mongoose';
 
 export type LessonDocument = Lesson & Document;
 
-@Schema({ timestamps: true }) // Tự động có createdAt, updatedAt
+@Schema({ timestamps: true })
 export class Lesson {
   @Prop({ type: Types.ObjectId, ref: 'Course', required: true })
   course_id: Types.ObjectId;
@@ -25,3 +25,9 @@ export class Lesson {
 }
 
 export const LessonSchema = SchemaFactory.createForClass(Lesson);
+
+// Index để tối ưu truy vấn
+// Hỗ trợ truy vấn danh sách theo khóa học, đã xóa và sắp xếp
+LessonSchema.index({ course_id: 1, is_deleted: 1, order_index: 1 });
+// Hỗ trợ truy vấn tất cả khóa học
+LessonSchema.index({ is_deleted: 1, order_index: 1 });
