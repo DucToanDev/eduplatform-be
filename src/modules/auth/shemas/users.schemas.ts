@@ -15,13 +15,17 @@ export class Users {
   @Prop({ type: String, enum: UserRole, default: UserRole.TEACHER })
   role: UserRole;
 
-  @Prop({ required: true })
+  @Prop({ required: true, trim: true })
   fullname: string;
 
-  @Prop()
+  @Prop({
+    type: String,
+    default:
+      'https://ui-avatars.com/api/?name=teacher&background=f97316&color=ffffff&size=128',
+  })
   avatar_url: string;
 
-  @Prop({ required: true, unique: true })
+  @Prop({ required: true, unique: true, trim: true, lowercase: true })
   email: string;
 
   @Prop()
@@ -29,6 +33,9 @@ export class Users {
 
   @Prop({ required: true })
   password: string;
+
+  @Prop({ type: Boolean, default: true })
+  status: boolean;
 
   @Prop({ type: Date })
   last_login_at!: Date;

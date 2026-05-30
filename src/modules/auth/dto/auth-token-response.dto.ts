@@ -1,0 +1,39 @@
+import { ApiProperty } from '@nestjs/swagger';
+import { UserRole } from '../shemas/users.schemas';
+
+export class AuthUserResponseDto {
+  @ApiProperty({ example: '6659f9f7c1e9e7f0c4f0d1111' })
+  readonly id: string;
+
+  @ApiProperty({ example: 'Nguyen Van A' })
+  readonly fullname: string;
+
+  @ApiProperty({ example: 'teacher@example.com' })
+  readonly email: string;
+
+  @ApiProperty({ enum: UserRole, example: UserRole.TEACHER })
+  readonly role: UserRole;
+
+  @ApiProperty({ example: true })
+  readonly status: boolean;
+}
+
+export class AuthDataResponseDto {
+  @ApiProperty({
+    example:
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6Ij6659f9f7c1e9e7f0c4f0d1111.iat',
+    description: 'JWT token dùng để xác thực các request tiếp theo',
+  })
+  readonly accessToken: string;
+
+  @ApiProperty({ type: AuthUserResponseDto })
+  readonly user: AuthUserResponseDto;
+}
+
+export class AuthTokenResponseDto {
+  @ApiProperty({ example: 'Đăng nhập thành công' })
+  readonly message: string;
+
+  @ApiProperty({ type: AuthDataResponseDto })
+  readonly data: AuthDataResponseDto;
+}
