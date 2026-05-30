@@ -6,6 +6,7 @@ import { getMongooseConfig } from './config/database.config';
 import { AuthModule } from './modules/auth/auth.module';
 import { UploadsModule } from './modules/uploads/uploads.module';
 import { UsersModule } from './modules/users/users.module';
+import { LessonsModule } from './modules/lesson/lessons.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { UsersModule } from './modules/users/users.module';
     UsersModule,
     AuthModule,
     UploadsModule,
+    LessonsModule,
   ],
   controllers: [AppController],
 })
