@@ -50,7 +50,10 @@ export class UsersService {
       throw new ForbiddenException('Bạn không có quyền cập nhật avatar này');
     }
 
-    const uploadResult = await this.uploadsService.uploadImage(avatar,AVATAR_UPLOAD_FOLDER,);
+    const uploadResult = await this.uploadsService.uploadImage(
+      avatar,
+      AVATAR_UPLOAD_FOLDER,
+    );
     const user = await this.userModel.findByIdAndUpdate(
       id,
       { avatar_url: uploadResult.secure_url },

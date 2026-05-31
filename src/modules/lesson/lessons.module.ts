@@ -1,9 +1,10 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { LessonsService } from './lessons.service';
+import { AuthModule } from '../auth/auth.module';
 import { LessonsController } from './lessons.controller';
+import { LessonsService } from './lessons.service';
 import { Lesson, LessonSchema } from './schemas/lesson.schema';
-import { AuthModule } from '../auth/auth.module'
+
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: Lesson.name, schema: LessonSchema }]),
@@ -11,6 +12,6 @@ import { AuthModule } from '../auth/auth.module'
   ],
   controllers: [LessonsController],
   providers: [LessonsService],
-  exports: [LessonsService] // Export service trong trường hợp các Module Courses cần dùng
+  exports: [LessonsService],
 })
 export class LessonsModule {}
