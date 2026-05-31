@@ -8,8 +8,11 @@ export class AuthUserResponseDto {
   @ApiProperty({ example: 'Nguyen Van A' })
   readonly fullname: string;
 
-  @ApiProperty({ example: 'teacher@example.com' })
-  readonly email: string;
+  @ApiProperty({ example: 'teacher@example.com', required: false })
+  readonly email?: string;
+
+  @ApiProperty({ example: 'hocsinh1', required: false })
+  readonly username?: string;
 
   @ApiProperty({
     example:

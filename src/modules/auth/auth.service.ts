@@ -37,7 +37,7 @@ export class AuthService {
     message: string,
     user: Users & { _id: unknown },
   ): AuthTokenResponseDto {
-    const accessToken = this.jwtService.sign({ id: user._id });
+    const accessToken = this.jwtService.sign({ id: user._id, role: user.role });
 
     return {
       message,
@@ -46,7 +46,8 @@ export class AuthService {
         user: {
           id: String(user._id),
           fullname: user.fullname,
-          email: user.email,
+          email: user.email || '',
+          username: user.username || '',
           avatar_url: user.avatar_url,
           role: user.role,
           status: user.status,
@@ -89,16 +90,55 @@ export class AuthService {
     const user = await this.userModel.findOne({ email });
 
     if (!user) {
-      throw new UnauthorizedException('Email hoặc mật khẩu không hợp lệ');
+      throw new UnauthorizedException('Email hoặc mật khẩu không đúng');
     }
 
     if (!user.status) {
       throw new ForbiddenException('Tài khoản đã bị khóa');
     }
 
+    if (user.role !== UserRole.TEACHER) {
+      throw new ForbiddenException('Bạn không có quyền truy cập cổng này !');
+    }
+
     const isPasswordMatches = await bcrypt.compare(password, user.password);
     if (!isPasswordMatches) {
-      throw new UnauthorizedException('Email hoặc mật khẩu không hợp lệ');
+      throw new UnauthorizedException('Email hoặc mật khẩu không đúng !');
+    }
+
+    await this.userModel.updateOne(
+      { _id: user._id },
+      { $set: { last_login_at: new Date() } },
+    );
+
+    return this.buildAuthResponse('Đăng nhập thành công', user);
+  }
+
+  async studentLogin(loginDto: any): Promise<AuthTokenResponseDto> {
+    const { username, password } = loginDto;
+    const user = await this.userModel.findOne({ username });
+
+    if (!user) {
+      throw new UnauthorizedException(
+        'Tên đăng nhập hoặc mật khẩu không đúng !',
+      );
+    }
+
+    if (!user.status) {
+      throw new ForbiddenException('Tài khoản đã bị khóa');
+    }
+
+    if (user.role !== UserRole.STUDENT) {
+      throw new ForbiddenException(
+        'Chỉ học sinh mới được phép đăng nhập qua API này',
+      );
+    }
+
+    const isPasswordMatches = await bcrypt.compare(password, user.password);
+    if (!isPasswordMatches) {
+      throw new UnauthorizedException(
+        'Tên đăng nhập hoặc mật khẩu không đúng !',
+      );
     }
 
     await this.userModel.updateOne(

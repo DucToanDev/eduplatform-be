@@ -1,0 +1,161 @@
+Table users {
+  id ObjectId [pk]
+  email varchar
+  password varchar
+  role varchar // enum['admin', 'manager', 'teacher', 'student']
+  status boolean
+  last_login timestamp
+  fullname string
+  avatar_url string
+  phone string
+}
+
+Table teacher_profile {
+  user_id ObjectId [pk, ref: - users.id]
+  bio string
+  expertise string
+}
+
+Table student_profile {
+  user_id ObjectId [pk, ref: - users.id]
+  date_of_birth date
+  grade_level string
+  parent_phone string
+  points number
+  Parent_Access_Codes string
+}
+
+Table Custom_Feature_Requests {
+  id ObjectId [pk]
+  teacher_id ObjectId [ref: > users.id]
+  request_content string
+  contact_info string
+  status string // enum ['PENDING', 'IN_PROGRESS', 'RESOLVED', 'REJECTED']
+}
+
+Table Subscription_Packages {
+  id int [pk]
+  name varchar
+  price decimal
+  max_classes int
+  max_students_per_class int
+  can_sell_courses boolean
+  is_active boolean
+  features json
+}
+
+Table Courses {
+  id ObjectId [pk]
+  author_id ObjectId [ref: > users.id]
+  title string
+  description string
+  is_demo boolean
+  is_marketplace boolean
+  price decimal
+}
+
+Table Lesson_Materials {
+  id ObjectId [pk]
+  lesson_id ObjectId [ref: > Lessons.id]
+  material_type string // enum ['IMG','DOCX','EXCEL']
+  url string
+  content_data string
+  order_index number
+}
+
+Table Lessons {
+  id ObjectId [pk]
+  course_id ObjectId [ref: > Courses.id]
+  title string
+  content string
+  video_url string
+  order_index number
+  unlock_condition varchar
+}
+
+Table Student_Progress {
+  id ObjectId [pk]
+  student_id ObjectId [ref: > users.id]
+  lesson_id ObjectId [ref: > Lessons.id]
+  score number
+  completed_at date
+}
+
+Table Class_Enrollments {
+  student_id ObjectId [ref: > users.id]
+  class_id ObjectId [ref: > Classes.id]
+  joined_date date
+}
+
+Table Classes {
+  id ObjectId [pk]
+  class_name string
+  teacher_id ObjectId [ref: > users.id]
+}
+
+Table Store_Items {
+  id ObjectId [pk]
+  name string
+  point_price int
+  image_url string
+  is_active boolean
+  created_at date
+}
+
+Table Student_Inventory {
+  id ObjectId [pk]
+  student_id ObjectId [ref: > users.id]
+  item_id ObjectId [ref: > Store_Items.id]
+  purchased_price int
+  purchased_at date
+  is_used boolean
+}
+
+Table notification {
+  id ObjectId [pk]
+  user_id ObjectId [ref: > users.id]
+  message string
+  is_read boolean
+  created_at date
+}
+
+Table transactions {
+  id ObjectId [pk]
+  order_id ObjectId
+  transaction_type string // enum ['PAYMENT_TO_ADMIN', 'COMMISSION_FEE', 'TEACHER_INCOME']
+  amount decimal
+  recipient_id string
+  created_at date
+}
+
+Table orders {
+  id number [pk]
+  user_id number
+  reference_type string // enum ['SUBSCRIPTION', 'COURSE']
+  reference_id number
+  item_name_snapshot json
+  item_price_snapshot decimal
+  status string // enum ['PENDING', 'PAID', 'CANCELLED']
+  payment_method string // enum ['COD','BANK']
+  seller_id number
+}
+
+Table Teacher_Subscriptions {
+  id ObjectId [pk]
+  teacher_id ObjectId [ref: > users.id]
+  package_id number
+  features_snapshot json
+  start_date date
+  end_date date
+  status string // enum ['ACTIVE', 'EXPIRED', 'CANCELED', 'UPGRADED']
+}
+
+Table Withdrawal_Request {
+  id ObjectId [pk]
+  teacher_id ObjectId [ref: > users.id]
+  amount decimal
+  bank_detail string
+  wallet string
+  balance decimal
+  total_earned decimal
+}

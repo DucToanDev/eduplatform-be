@@ -1,21 +1,21 @@
-import { IsEmail, IsNotEmpty, IsString, MinLength } from 'class-validator';
+import { IsNotEmpty, IsString } from 'class-validator';
 import { Transform } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
 
-export class LoginDto {
+export class StudentLoginDto {
   @ApiProperty({
-    example: 'teacher@example.com',
-    description: 'Email đã đăng ký',
+    example: 'hocsinh1',
+    description: 'Tên đăng nhập',
   })
   @Transform(({ value }) =>
     typeof value === 'string' ? value.trim().toLowerCase() : value,
   )
   @IsNotEmpty()
-  @IsEmail({}, { message: 'Vui lòng nhập đúng định dạng email' })
-  readonly email: string;
+  @IsString()
+  readonly username: string;
 
   @ApiProperty({
-    example: 'password123',
+    example: '123123',
     description: 'Mật khẩu của tài khoản',
   })
   @IsNotEmpty()

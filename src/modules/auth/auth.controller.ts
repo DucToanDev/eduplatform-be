@@ -12,6 +12,7 @@ import {
 } from '@nestjs/swagger';
 import { SignUpDto } from './dto/signup.dto';
 import { LoginDto } from './dto/login.dto';
+import { StudentLoginDto } from './dto/student-login.dto';
 import { AuthTokenResponseDto } from './dto/auth-token-response.dto';
 
 @ApiTags('Auth')
@@ -31,16 +32,33 @@ export class AuthController {
     return this.authService.signUp(signUpDto);
   }
 
-  @Post('/login')
-  @ApiOperation({ summary: 'Đăng nhập bằng email và mật khẩu' })
+  @Post('/teacher/login')
+  @ApiOperation({ summary: 'Đăng nhập dành riêng cho giáo viên' })
   @ApiOkResponse({
     description: 'Đăng nhập thành công, trả về JWT token',
     type: AuthTokenResponseDto,
   })
   @ApiBadRequestResponse({ description: 'Dữ liệu gửi lên không hợp lệ' })
   @ApiForbiddenResponse({ description: 'Tài khoản đã bị khóa' })
-  @ApiUnauthorizedResponse({ description: 'Email hoặc mật khẩu không hợp lệ' })
+  @ApiUnauthorizedResponse({ description: 'Email hoặc mật khẩu không đúng !' })
   login(@Body() loginDto: LoginDto): Promise<AuthTokenResponseDto> {
     return this.authService.login(loginDto);
+  }
+
+  @Post('/student/login')
+  @ApiOperation({ summary: 'Đăng nhập dành riêng cho học sinh' })
+  @ApiOkResponse({
+    description: 'Đăng nhập thành công, trả về JWT token',
+    type: AuthTokenResponseDto,
+  })
+  @ApiBadRequestResponse({ description: 'Dữ liệu gửi lên không hợp lệ' })
+  @ApiForbiddenResponse({ description: 'Tài khoản đã bị khóa' })
+  @ApiUnauthorizedResponse({
+    description: 'Tên đăng nhập hoặc mật khẩu không đúng !',
+  })
+  studentLogin(
+    @Body() loginDto: StudentLoginDto,
+  ): Promise<AuthTokenResponseDto> {
+    return this.authService.studentLogin(loginDto);
   }
 }
