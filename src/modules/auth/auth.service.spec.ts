@@ -53,6 +53,7 @@ describe('AuthService', () => {
         _id: baseUser._id,
         role: UserRole.TEACHER,
         status: true,
+        username: payload.username || '',
       }));
 
       const result = await service.signUp({
@@ -76,7 +77,7 @@ describe('AuthService', () => {
           userModel.create.mock.calls[0][0].password,
         ),
       ).resolves.toBe(true);
-      expect(jwtService.sign).toHaveBeenCalledWith({ id: baseUser._id });
+      expect(jwtService.sign).toHaveBeenCalledWith({ id: baseUser._id, role: baseUser.role });
       expect(teacherProfileModel.create).toHaveBeenCalledWith({
         user_id: baseUser._id,
       });
@@ -89,6 +90,7 @@ describe('AuthService', () => {
           avatar_url: baseUser.avatar_url,
           role: UserRole.TEACHER,
           status: true,
+          username: '',
         },
       });
     });
@@ -127,7 +129,7 @@ describe('AuthService', () => {
         { _id: baseUser._id },
         { $set: { last_login_at: expect.any(Date) } },
       );
-      expect(jwtService.sign).toHaveBeenCalledWith({ id: baseUser._id });
+      expect(jwtService.sign).toHaveBeenCalledWith({ id: baseUser._id, role: baseUser.role });
       expect(result.data.accessToken).toBe('signed-jwt-token');
       expect(result.data.user).toEqual({
         id: baseUser._id,
@@ -136,6 +138,7 @@ describe('AuthService', () => {
         avatar_url: baseUser.avatar_url,
         role: baseUser.role,
         status: baseUser.status,
+        username: '',
       });
     });
 

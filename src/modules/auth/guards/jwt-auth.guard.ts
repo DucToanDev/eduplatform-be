@@ -10,6 +10,8 @@ import { Request } from 'express';
 
 export type AuthenticatedUser = {
   userId: string;
+  role: string;
+  exp?: number;
 };
 
 type AuthenticatedRequest = Request & {
@@ -32,11 +34,11 @@ export class JwtAuthGuard implements CanActivate {
     }
 
     try {
-      const payload = await this.jwtService.verifyAsync<{ id: string }>(token, {
+      const payload = await this.jwtService.verifyAsync<{ id: string, role: string, exp: number }>(token, {
         secret: this.configService.get<string>('JWT_SECRET'),
       });
 
-      request.user = { userId: payload.id };
+      request.user = { userId: payload.id, role: payload.role, exp: payload.exp };
       return true;
     } catch {
       throw new UnauthorizedException('Token không hợp lệ hoặc đã hết hạn');

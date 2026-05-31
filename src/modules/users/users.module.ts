@@ -17,10 +17,12 @@ import {
   TeacherProfileSchema,
 } from './schemas/teacher-profile.schema';
 import { Users, UsersSchema } from './schemas/users.schema';
+import { ClassesModule } from '../classes/classes.module';
 
 @Module({
   imports: [
     UploadsModule,
+    ClassesModule,
     JwtModule.registerAsync({
       inject: [ConfigService],
       useFactory: (config: ConfigService) => ({

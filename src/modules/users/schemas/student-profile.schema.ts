@@ -10,6 +10,9 @@ export class StudentProfile {
   @Prop({ type: Types.ObjectId, ref: Users.name, required: true, unique: true })
   user_id: Types.ObjectId;
 
+  @Prop({ type: Types.ObjectId, ref: Users.name, required: true })
+  teacher_id: Types.ObjectId;
+
   @Prop({ type: Date })
   date_of_birth?: Date;
 

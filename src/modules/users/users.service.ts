@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
+import * as bcrypt from 'bcryptjs';
 import { UploadsService } from '../uploads/uploads.service';
 import { AvatarResponseDto } from './dto/avatar-response.dto';
 import {
@@ -21,9 +22,11 @@ import {
   TeacherProfile,
   TeacherProfileDocument,
 } from './schemas/teacher-profile.schema';
-import { Users, UsersDocument } from './schemas/users.schema';
+import { Users, UsersDocument, UserRole } from './schemas/users.schema';
 import { UpdateStudentProfileDto } from './dto/update-student-profile.dto';
 import { UpdateTeacherProfileDto } from './dto/update-teacher-profile.dto';
+import { CreateStudentDto } from './dto/create-student.dto';
+import { ClassEnrollment, ClassEnrollmentDocument } from '../classes/schemas/class-enrollment.schema';
 
 const AVATAR_UPLOAD_FOLDER = 'edu-platform/avatars';
 
@@ -36,6 +39,8 @@ export class UsersService {
     private readonly studentProfileModel: Model<StudentProfileDocument>,
     @InjectModel(TeacherProfile.name)
     private readonly teacherProfileModel: Model<TeacherProfileDocument>,
+    @InjectModel(ClassEnrollment.name)
+    private readonly classEnrollmentModel: Model<ClassEnrollmentDocument>,
     private readonly uploadsService: UploadsService,
   ) {}
 
@@ -84,6 +89,7 @@ export class UsersService {
 
     return this.buildStudentProfileResponse(profile);
   }
+
 
   async getStudentProfileByUserId(
     userId: string,
@@ -212,6 +218,83 @@ export class UsersService {
     };
   }
 
+  async createStudent(dto: CreateStudentDto, teacherId: string) {
+    const username =
+      dto.username ||
+      `hs${Math.floor(Math.random() * 10000)}${Date.now().toString().slice(-4)}`;
+    const passwordText = dto.password || Math.random().toString(36).slice(-6);
+    const hashedPassword = await bcrypt.hash(passwordText, 10);
+
+    try {
+      const user = await this.userModel.create({
+        fullname: dto.fullname,
+        username: username,
+        gender: dto.gender,
+        password: hashedPassword,
+        raw_password: passwordText,
+        role: UserRole.STUDENT,
+      });
+
+      await this.studentProfileModel.create({
+        user_id: user._id,
+        grade_level: dto.grade_level,
+        teacher_id: new Types.ObjectId(teacherId),
+      });
+
+      if (dto.class_ids && dto.class_ids.length > 0) {
+        const enrollments = dto.class_ids.map((classId) => ({
+          student_id: user._id,
+          class_id: new Types.ObjectId(classId),
+        }));
+        await this.classEnrollmentModel.insertMany(enrollments);
+      }
+
+      return {
+        status: 200,
+        message: 'Tạo tài khoản học sinh thành công',
+      };
+    } catch (error: any) {
+      if (error.code === 11000) {
+        throw new BadRequestException(
+          'Tên đăng nhập này đã tồn tại trong hệ thống',
+        );
+      }
+      throw error;
+    }
+  }
+
+  async getStudentsByClassId(classId: string): Promise<any[]> {
+    this.validateObjectId(classId);
+
+    const enrollments = await this.classEnrollmentModel.find({
+      class_id: new Types.ObjectId(classId),
+    }).populate('student_id', 'fullname username avatar_url raw_password');
+
+    return enrollments.map((enrollment: any) => ({
+      id: enrollment.student_id._id,
+      fullname: enrollment.student_id.fullname,
+      username: enrollment.student_id.username,
+      avatar_url: enrollment.student_id.avatar_url,
+      password: enrollment.student_id.raw_password,
+    }));
+  }
+
+  async getStudentsByTeacherId(teacherId: string): Promise<any[]> {
+    this.validateObjectId(teacherId);
+
+    const profiles = await this.studentProfileModel.find({
+      teacher_id: new Types.ObjectId(teacherId),
+    }).populate('user_id', 'fullname username avatar_url raw_password');
+
+    return profiles.map((profile: any) => ({
+      id: profile.user_id._id,
+      fullname: profile.user_id.fullname,
+      username: profile.user_id.username,
+      avatar_url: profile.user_id.avatar_url,
+      password: profile.user_id.raw_password,
+    }));
+  }
+
   private async findProfileUser(
     userId: Types.ObjectId,
   ): Promise<UsersDocument> {
@@ -228,7 +311,7 @@ export class UsersService {
     return {
       id: String(user._id),
       fullname: user.fullname,
-      email: user.email,
+      email: user.email || '',
       avatar_url: user.avatar_url,
       phone: user.phone,
       role: user.role,
