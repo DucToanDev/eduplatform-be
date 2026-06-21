@@ -1,10 +1,10 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { LessonsService } from './lessons.service';
-import { LessonsController } from './lessons.controller';
-import { Lesson, LessonSchema } from './schemas/lesson.schema';
 import { AuthModule } from '../auth/auth.module';
 import { CoursesModule } from '../courses/courses.module';
+import { LessonsController } from './lessons.controller';
+import { LessonsService } from './lessons.service';
+import { Lesson, LessonSchema } from './schemas/lesson.schema';
 import { LessonMaterial, LessonMaterialSchema } from './schemas/lesson-material.schema';
 
 @Module({
@@ -18,6 +18,6 @@ import { LessonMaterial, LessonMaterialSchema } from './schemas/lesson-material.
   ],
   controllers: [LessonsController],
   providers: [LessonsService],
-  exports: [LessonsService] // Export service trong trường hợp các Module Courses cần dùng
+  exports: [LessonsService],
 })
 export class LessonsModule {}

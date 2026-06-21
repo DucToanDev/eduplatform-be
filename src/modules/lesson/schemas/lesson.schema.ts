@@ -29,8 +29,6 @@ export class Lesson {
 
 export const LessonSchema = SchemaFactory.createForClass(Lesson);
 
-// Index để tối ưu truy vấn
-// Hỗ trợ truy vấn danh sách theo khóa học, đã xóa và sắp xếp
+// Tối ưu truy vấn danh sách bài học theo khóa học và trạng thái xóa mềm.
 LessonSchema.index({ course_id: 1, is_deleted: 1, order_index: 1 });
-// Hỗ trợ truy vấn tất cả khóa học
 LessonSchema.index({ is_deleted: 1, order_index: 1 });

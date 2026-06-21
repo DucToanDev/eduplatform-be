@@ -1,16 +1,27 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
-import { Lesson, LessonDocument } from './schemas/lesson.schema';
+import { Model, Types } from 'mongoose';
+import { PaginationQueryDto } from '../../common/dto/pagination-query.dto';
+import { PaginatedResponse } from '../../common/interfaces/paginated-response.interface';
+import {
+  buildPaginatedResponse,
+  getPaginationSkip,
+} from '../../common/utils/pagination.util';
+import { CoursesService } from '../courses/courses.service';
 import { CreateLessonDto } from './dto/create-lesson.dto';
 import { UpdateLessonDto } from './dto/update-lesson.dto';
-import { CoursesService } from '../courses/courses.service';
-import { ForbiddenException } from '@nestjs/common';
+import { Lesson, LessonDocument } from './schemas/lesson.schema';
 
 @Injectable()
 export class LessonsService {
   constructor(
-    @InjectModel(Lesson.name) private readonly lessonModel: Model<LessonDocument>,
+    @InjectModel(Lesson.name)
+    private readonly lessonModel: Model<LessonDocument>,
     private readonly coursesService: CoursesService,
   ) {}
 
@@ -27,69 +38,105 @@ export class LessonsService {
     return newLesson.save();
   }
 
-  async findAll(page: number = 1, limit: number = 10): Promise<any> {
-    const skip = (page - 1) * limit;
-    const [data, total] = await Promise.all([
-      this.lessonModel
-        .find({ is_deleted: false })
-        .select('-content') // Tối ưu: Không trả về content quá dài ở danh sách
-        .sort({ order_index: 1 })
-        .skip(skip)
-        .limit(limit)
-        .exec(),
-      this.lessonModel.countDocuments({ is_deleted: false })
-    ]);
-    return { data, total, page: Number(page), limit: Number(limit) };
+  async findAll(
+    paginationQuery: PaginationQueryDto,
+  ): Promise<PaginatedResponse<Lesson>> {
+    return this.findPaginated({ is_deleted: false }, paginationQuery);
   }
 
-  async findByCourse(courseId: string, page: number = 1, limit: number = 10): Promise<any> {
-    const skip = (page - 1) * limit;
-    const [data, total] = await Promise.all([
-      this.lessonModel
-        .find({ course_id: courseId, is_deleted: false })
-        .select('-content') // Tối ưu: Không trả về content quá dài ở danh sách
-        .sort({ order_index: 1 })
-        .skip(skip)
-        .limit(limit)
-        .exec(),
-      this.lessonModel.countDocuments({ course_id: courseId, is_deleted: false })
-    ]);
-    return { data, total, page: Number(page), limit: Number(limit) };
+  async findByCourse(
+    courseId: string,
+    paginationQuery: PaginationQueryDto,
+  ): Promise<PaginatedResponse<Lesson>> {
+    this.validateObjectId(courseId);
+
+    return this.findPaginated(
+      {
+        course_id: new Types.ObjectId(courseId),
+        is_deleted: false,
+      },
+      paginationQuery,
+    );
   }
 
   async findOne(id: string): Promise<Lesson> {
-    const lesson = await this.lessonModel.findOne({ _id: id, is_deleted: false }).exec();
+    this.validateObjectId(id);
+
+    const lesson = await this.lessonModel
+      .findOne({ _id: id, is_deleted: false })
+      .exec();
+
     if (!lesson) {
       throw new NotFoundException(`Không tìm thấy bài học với ID #${id}`);
     }
+
     return lesson;
   }
 
   async update(id: string, updateLessonDto: UpdateLessonDto, authorId: string): Promise<Lesson> {
+    this.validateObjectId(id);
     const lessonToUpdate = await this.findOne(id);
     await this.checkCourseOwnership(lessonToUpdate.course_id.toString(), authorId);
 
     const updatedLesson = await this.lessonModel
-      .findByIdAndUpdate(id, updateLessonDto, { new: true })
+      .findOneAndUpdate({ _id: id, is_deleted: false }, updateLessonDto, {
+        new: true,
+        runValidators: true,
+      })
       .exec();
-      
+
     if (!updatedLesson) {
-      throw new NotFoundException(`Không tìm thấy bài học với ID #${id} để cập nhật`);
+      throw new NotFoundException(
+        `Không tìm thấy bài học với ID #${id} để cập nhật`,
+      );
     }
+
     return updatedLesson;
   }
 
   async remove(id: string, authorId: string): Promise<void> {
+    this.validateObjectId(id);
     const lessonToRemove = await this.findOne(id);
     await this.checkCourseOwnership(lessonToRemove.course_id.toString(), authorId);
 
-    const result = await this.lessonModel.findOneAndUpdate(
-      { _id: id, is_deleted: false },
-      { is_deleted: true },
-      { new: true },
-    ).exec();
+    const result = await this.lessonModel
+      .findOneAndUpdate(
+        { _id: id, is_deleted: false },
+        { is_deleted: true },
+        { new: true },
+      )
+      .exec();
+
     if (!result) {
-      throw new NotFoundException(`Không tìm thấy bài học với ID #${id} để xóa`);
+      throw new NotFoundException(
+        `Không tìm thấy bài học với ID #${id} để xóa`,
+      );
+    }
+  }
+
+  private async findPaginated(
+    filter: Record<string, unknown>,
+    paginationQuery: PaginationQueryDto,
+  ): Promise<PaginatedResponse<Lesson>> {
+    const skip = getPaginationSkip(paginationQuery);
+
+    const [data, total] = await Promise.all([
+      this.lessonModel
+        .find(filter)
+        .select('-content')
+        .sort({ order_index: 1 })
+        .skip(skip)
+        .limit(paginationQuery.limit)
+        .exec(),
+      this.lessonModel.countDocuments(filter),
+    ]);
+
+    return buildPaginatedResponse(data, total, paginationQuery);
+  }
+
+  private validateObjectId(id: string): void {
+    if (!Types.ObjectId.isValid(id)) {
+      throw new BadRequestException('Id không hợp lệ');
     }
   }
 }
