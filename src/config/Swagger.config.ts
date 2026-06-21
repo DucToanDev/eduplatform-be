@@ -37,10 +37,18 @@ const configSwagger = (app: INestApplication) => {
         const parts = val.split('.');
         if (parts.length === 3) {
           try {
-            const base64 = parts[1].replace(/-/g, '+').replace(/_/g, '/');
-            const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
-                return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-            }).join(''));
+            let base64 = parts[1].replace(/-/g, '+').replace(/_/g, '/');
+            while (base64.length % 4) {
+              base64 += '=';
+            }
+            let jsonPayload = '';
+            try {
+               jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+                  return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+               }).join(''));
+            } catch (e) {
+               jsonPayload = atob(base64); // Fallback for simple ASCII
+            }
             const payload = JSON.parse(jsonPayload);
             if (payload.exp) {
               const date = new Date(payload.exp * 1000);
@@ -110,6 +118,7 @@ const configSwagger = (app: INestApplication) => {
     yamlDocumentUrl: 'doc-yaml',
     swaggerOptions: {
       persistAuthorization: true,
+      withCredentials: true,
     },
     customJsStr: customJsStr,
   });

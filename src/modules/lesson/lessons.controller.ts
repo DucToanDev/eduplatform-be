@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Query, Request } from '@nestjs/common';
 import { LessonsService } from './lessons.service';
 import { CreateLessonDto } from './dto/create-lesson.dto';
 import { UpdateLessonDto } from './dto/update-lesson.dto';
@@ -14,8 +14,8 @@ export class LessonsController {
 
     @Post()
     @ApiOperation({ summary: 'Tạo một bài học mới' })
-    create(@Body() createLessonDto: CreateLessonDto) {
-        return this.lessonsService.create(createLessonDto);
+    create(@Request() req, @Body() createLessonDto: CreateLessonDto) {
+        return this.lessonsService.create(createLessonDto, req.user.id);
     }
 
     @Get()
@@ -49,14 +49,14 @@ export class LessonsController {
     @Patch(':id')
     @ApiOperation({ summary: 'Cập nhật thông tin bài học' })
     @ApiParam({ name: 'id', type: 'string', description: 'ID của bài học' })
-    update(@Param('id') id: string, @Body() updateLessonDto: UpdateLessonDto) {
-        return this.lessonsService.update(id, updateLessonDto);
+    update(@Param('id') id: string, @Request() req, @Body() updateLessonDto: UpdateLessonDto) {
+        return this.lessonsService.update(id, updateLessonDto, req.user.id);
     }
 
     @Delete(':id')
     @ApiOperation({ summary: 'Xóa bài học' })
     @ApiParam({ name: 'id', type: 'string', description: 'ID của bài học' })
-    remove(@Param('id') id: string) {
-        return this.lessonsService.remove(id);
+    remove(@Param('id') id: string, @Request() req) {
+        return this.lessonsService.remove(id, req.user.id);
     }
 }

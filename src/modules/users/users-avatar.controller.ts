@@ -63,6 +63,6 @@ export class UsersAvatarController {
     @UploadedFile() avatar: Express.Multer.File,
     @Req() request: AuthenticatedRequest,
   ): Promise<AvatarResponseDto> {
-    return this.usersService.updateAvatar(id, avatar, request.user.userId);
+    return this.usersService.updateAvatar(id, avatar, request.user.id);
   }
 }
