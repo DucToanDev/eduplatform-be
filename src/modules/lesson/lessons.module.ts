@@ -1,14 +1,20 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { AuthModule } from '../auth/auth.module';
+import { CoursesModule } from '../courses/courses.module';
 import { LessonsController } from './lessons.controller';
 import { LessonsService } from './lessons.service';
 import { Lesson, LessonSchema } from './schemas/lesson.schema';
+import { LessonMaterial, LessonMaterialSchema } from './schemas/lesson-material.schema';
 
 @Module({
   imports: [
-    MongooseModule.forFeature([{ name: Lesson.name, schema: LessonSchema }]),
+    MongooseModule.forFeature([
+      { name: Lesson.name, schema: LessonSchema },
+      { name: LessonMaterial.name, schema: LessonMaterialSchema }
+    ]),
     AuthModule,
+    CoursesModule,
   ],
   controllers: [LessonsController],
   providers: [LessonsService],

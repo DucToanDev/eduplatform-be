@@ -40,7 +40,7 @@ export class ClassesController {
   @ApiCreatedResponse({ description: 'Tạo lớp học thành công' })
   @ApiBadRequestResponse({ description: 'Dữ liệu không hợp lệ' })
   create(@Body() createClassDto: CreateClassDto, @Req() req: any) {
-    const teacherId = req.user.userId;
+    const teacherId = req.user.id;
     return this.classesService.createClass(createClassDto, teacherId);
   }
 
@@ -48,7 +48,7 @@ export class ClassesController {
   @ApiOperation({ summary: 'Lấy danh sách các lớp học của giáo viên' })
   @ApiOkResponse({ description: 'Thành công' })
   findAll(@Param('teacherId') paramTeacherId: string, @Req() req: any) {
-    const tokenTeacherId = req.user.userId;
+    const tokenTeacherId = req.user.id;
     
     if (tokenTeacherId !== paramTeacherId) {
       throw new ForbiddenException('Bạn không có quyền xem lớp học của giáo viên khác');
@@ -66,8 +66,8 @@ export class ClassesController {
     @Body() updateClassDto: UpdateClassDto,
     @Req() req: any,
   ) {
-    const teacherId = req.user.userId;
-    return this.classesService.updateClass(id, updateClassDto, teacherId);
+    const tokenTeacherId = req.user.id;
+    return this.classesService.updateClass(id, updateClassDto, tokenTeacherId);
   }
 
   @Delete(':id')
@@ -75,7 +75,7 @@ export class ClassesController {
   @ApiOkResponse({ description: 'Xóa thành công' })
   @ApiNotFoundResponse({ description: 'Không tìm thấy lớp học' })
   remove(@Param('id') id: string, @Req() req: any) {
-    const teacherId = req.user.userId;
+    const teacherId = req.user.id;
     return this.classesService.deleteClass(id, teacherId);
   }
 }
