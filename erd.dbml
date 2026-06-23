@@ -185,3 +185,12 @@ Table RefreshTokens {
   expires_at timestamp
   created_at timestamp
 }
+
+Table QuizSubmissions {
+  id ObjectId [pk]
+  quiz_id ObjectId [ref: > Quizzes.id]
+  student_id ObjectId [ref: > users.id]
+  answers json // array of { question_id, selected_index, is_correct }
+  score number // score percentage or correct count
+  submitted_at timestamp
+}

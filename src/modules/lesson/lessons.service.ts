@@ -59,6 +59,15 @@ export class LessonsService {
     );
   }
 
+  async findAllIdsByCourse(courseId: string): Promise<string[]> {
+    this.validateObjectId(courseId);
+    const lessons = await this.lessonModel
+      .find({ course_id: new Types.ObjectId(courseId), is_deleted: false })
+      .select('_id')
+      .exec();
+    return lessons.map(l => l._id.toString());
+  }
+
   async findOne(id: string): Promise<Lesson> {
     this.validateObjectId(id);
 
