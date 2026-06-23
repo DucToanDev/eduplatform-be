@@ -1,6 +1,9 @@
 import { Injectable, NotFoundException, ForbiddenException, BadRequestException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
+import { PaginationQueryDto } from '../../common/dto/pagination-query.dto';
+import { PaginatedResponse } from '../../common/interfaces/paginated-response.interface';
+import { buildPaginatedResponse, getPaginationSkip } from '../../common/utils/pagination.util';
 import { Quiz, QuizDocument, QuizType } from './schemas/quiz.schema';
 import { Question, QuestionDocument } from './schemas/question.schema';
 import { QuizSubmission, QuizSubmissionDocument } from './schemas/quiz-submission.schema';
@@ -79,7 +82,7 @@ export class QuizzesService {
 
   // --- QUESTION BANK & QUESTION CRUD ---
   
-  async getQuestionBankByCourse(courseId: string, authorId: string): Promise<Question[]> {
+  async getQuestionBankByCourse(courseId: string, authorId: string, paginationQuery: PaginationQueryDto): Promise<PaginatedResponse<Question>> {
     await this.lessonsService.checkCourseOwnership(courseId, authorId);
     
     const courseQuizzes = await this.quizModel.find({ course_id: new Types.ObjectId(courseId) }).select('_id').exec();
@@ -88,7 +91,20 @@ export class QuizzesService {
     
     const allQuizIds = [...courseQuizzes.map(q => q._id), ...lessonQuizzes.map(q => q._id)];
     
-    return this.questionModel.find({ quiz_id: { $in: allQuizIds } }).exec();
+    const skip = getPaginationSkip(paginationQuery);
+    const filter = { quiz_id: { $in: allQuizIds } };
+
+    const [data, total] = await Promise.all([
+      this.questionModel
+        .find(filter)
+        .sort({ _id: -1 })
+        .skip(skip)
+        .limit(paginationQuery.limit)
+        .exec(),
+      this.questionModel.countDocuments(filter),
+    ]);
+
+    return buildPaginatedResponse(data, total, paginationQuery);
   }
 
   async getQuestionById(id: string): Promise<QuestionDocument> {
@@ -133,29 +149,48 @@ export class QuizzesService {
       return {
         question_id: ans.question_id,
         selected_index: ans.selected_index,
-        is_correct: is_correct
+        is_correct: is_correct,
+        correct_option_index: q ? q.correct_option_index : -1
       };
     });
 
-    const newSubmission = new this.quizSubmissionModel({
+    const filter = {
       quiz_id: new Types.ObjectId(quizId),
       student_id: new Types.ObjectId(studentId),
+    };
+
+    const update = {
       answers: submissionAnswers,
-      score: score
-    });
-    
-    await newSubmission.save();
+      score: score,
+      submitted_at: new Date()
+    };
+
+    const submission = await this.quizSubmissionModel.findOneAndUpdate(filter, update, { new: true, upsert: true }).exec();
 
     return {
-      submission_id: newSubmission._id,
+      submission_id: submission._id,
       total_questions: total,
       correct_answers: score,
       score_percentage: total > 0 ? (score / total) * 100 : 0,
     };
   }
 
-  async getStudentSubmissions(studentId: string): Promise<QuizSubmission[]> {
-    return this.quizSubmissionModel.find({ student_id: new Types.ObjectId(studentId) }).sort({ submitted_at: -1 }).populate('quiz_id', 'title quiz_type').exec();
+  async getStudentSubmissions(studentId: string, paginationQuery: PaginationQueryDto): Promise<PaginatedResponse<QuizSubmission>> {
+    const skip = getPaginationSkip(paginationQuery);
+    const filter = { student_id: new Types.ObjectId(studentId) };
+
+    const [data, total] = await Promise.all([
+      this.quizSubmissionModel
+        .find(filter)
+        .sort({ submitted_at: -1 })
+        .populate('quiz_id', 'title quiz_type')
+        .skip(skip)
+        .limit(paginationQuery.limit)
+        .exec(),
+      this.quizSubmissionModel.countDocuments(filter),
+    ]);
+
+    return buildPaginatedResponse(data, total, paginationQuery);
   }
 
   async getSubmissionDetails(submissionId: string, userId: string): Promise<any> {

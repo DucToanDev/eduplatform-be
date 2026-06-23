@@ -190,7 +190,7 @@ Table QuizSubmissions {
   id ObjectId [pk]
   quiz_id ObjectId [ref: > Quizzes.id]
   student_id ObjectId [ref: > users.id]
-  answers json // array of { question_id, selected_index, is_correct }
+  answers json // array of { question_id, selected_index, is_correct, correct_option_index }
   score number // score percentage or correct count
   submitted_at timestamp
 }

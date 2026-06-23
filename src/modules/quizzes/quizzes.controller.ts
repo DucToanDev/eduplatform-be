@@ -1,8 +1,9 @@
-import { Controller, Get, Post, Body, Param, UseGuards, Request, Patch, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Query, UseGuards, Request, Patch, Delete } from '@nestjs/common';
 import { QuizzesService } from './quizzes.service';
 import { CreateQuizDto } from './dto/create-quiz.dto';
 import { CreateQuestionDto } from './dto/create-question.dto';
 import { UpdateQuestionDto } from './dto/update-question.dto';
+import { PaginationQueryDto } from '../../common/dto/pagination-query.dto';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
@@ -76,8 +77,12 @@ export class QuizzesController {
   @Roles(UserRole.TEACHER)
   @Get('questions/bank/course/:courseId')
   @ApiOperation({ summary: 'Lấy ngân hàng câu hỏi của Khóa học (Giáo viên)' })
-  getQuestionBankByCourse(@Param('courseId') courseId: string, @Request() req) {
-    return this.quizzesService.getQuestionBankByCourse(courseId, req.user.id);
+  getQuestionBankByCourse(
+    @Param('courseId') courseId: string, 
+    @Query() paginationQuery: PaginationQueryDto, 
+    @Request() req
+  ) {
+    return this.quizzesService.getQuestionBankByCourse(courseId, req.user.id, paginationQuery);
   }
 
   @ApiBearerAuth()
@@ -113,8 +118,8 @@ export class QuizzesController {
   @UseGuards(JwtAuthGuard)
   @Get('submissions/history')
   @ApiOperation({ summary: 'Lấy danh sách lịch sử nộp bài của học sinh' })
-  getStudentSubmissions(@Request() req) {
-    return this.quizzesService.getStudentSubmissions(req.user.id);
+  getStudentSubmissions(@Query() paginationQuery: PaginationQueryDto, @Request() req) {
+    return this.quizzesService.getStudentSubmissions(req.user.id, paginationQuery);
   }
 
   @ApiBearerAuth()
