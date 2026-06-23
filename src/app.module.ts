@@ -10,6 +10,9 @@ import { UploadsModule } from './modules/uploads/uploads.module';
 import { UsersModule } from './modules/users/users.module';
 import { LessonsModule } from './modules/lesson/lessons.module';
 import { ClassesModule } from './modules/classes/classes.module';
+import { LessonMaterialsModule } from './modules/lesson-materials/lesson-materials.module';
+import { ProgressModule } from './modules/progress/progress.module';
+import { NotificationsModule } from './modules/notifications/notifications.module';
 
 @Module({
   imports: [
@@ -26,6 +29,9 @@ import { ClassesModule } from './modules/classes/classes.module';
     UploadsModule,
     LessonsModule,
     ClassesModule,
+    LessonMaterialsModule,
+    ProgressModule,
+    NotificationsModule,
   ],
   controllers: [AppController],
   providers: [
