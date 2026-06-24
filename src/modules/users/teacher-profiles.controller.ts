@@ -34,17 +34,6 @@ export class TeacherProfilesController {
     return this.usersService.getTeacherProfileByUserId(userId);
   }
 
-  @Get(':id')
-  @ApiOperation({ summary: 'Lấy hồ sơ giáo viên theo profile id' })
-  @ApiOkResponse({
-    description: 'Lấy hồ sơ giáo viên thành công',
-    type: TeacherProfileResponseDto,
-  })
-  @ApiBadRequestResponse({ description: 'Profile id không hợp lệ' })
-  @ApiNotFoundResponse({ description: 'Không tìm thấy hồ sơ giáo viên' })
-  getById(@Param('id') id: string): Promise<TeacherProfileResponseDto> {
-    return this.usersService.getTeacherProfile(id);
-  }
 
   @Patch('by-user/:userId')
   @ApiOperation({ summary: 'Cập nhật hồ sơ giáo viên bằng user id' })

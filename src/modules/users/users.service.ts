@@ -107,17 +107,6 @@ export class UsersService {
     return this.buildStudentProfileResponse(profile);
   }
 
-  async getTeacherProfile(id: string): Promise<TeacherProfileResponseDto> {
-    this.validateObjectId(id);
-
-    const profile = await this.teacherProfileModel.findById(id);
-
-    if (!profile) {
-      throw new NotFoundException('Không tìm thấy hồ sơ giáo viên');
-    }
-
-    return this.buildTeacherProfileResponse(profile);
-  }
 
   async getTeacherProfileByUserId(
     userId: string,
