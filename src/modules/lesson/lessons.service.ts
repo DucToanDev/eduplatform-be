@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ForbiddenException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -11,6 +12,7 @@ import {
   buildPaginatedResponse,
   getPaginationSkip,
 } from '../../common/utils/pagination.util';
+import { CoursesService } from '../courses/courses.service';
 import { CreateLessonDto } from './dto/create-lesson.dto';
 import { UpdateLessonDto } from './dto/update-lesson.dto';
 import { Lesson, LessonDocument } from './schemas/lesson.schema';
@@ -20,9 +22,18 @@ export class LessonsService {
   constructor(
     @InjectModel(Lesson.name)
     private readonly lessonModel: Model<LessonDocument>,
+    private readonly coursesService: CoursesService,
   ) {}
 
-  async create(createLessonDto: CreateLessonDto): Promise<Lesson> {
+  async checkCourseOwnership(courseId: string, authorId: string) {
+    const course = await this.coursesService.findOne(courseId);
+    if (course.author_id.toString() !== authorId) {
+      throw new ForbiddenException('Bạn không có quyền thao tác trên bài học của khóa học này');
+    }
+  }
+
+  async create(createLessonDto: CreateLessonDto, authorId: string): Promise<Lesson> {
+    await this.checkCourseOwnership(createLessonDto.course_id.toString(), authorId);
     const newLesson = new this.lessonModel(createLessonDto);
     return newLesson.save();
   }
@@ -48,6 +59,15 @@ export class LessonsService {
     );
   }
 
+  async findAllIdsByCourse(courseId: string): Promise<string[]> {
+    this.validateObjectId(courseId);
+    const lessons = await this.lessonModel
+      .find({ course_id: new Types.ObjectId(courseId), is_deleted: false })
+      .select('_id')
+      .exec();
+    return lessons.map(l => l._id.toString());
+  }
+
   async findOne(id: string): Promise<Lesson> {
     this.validateObjectId(id);
 
@@ -62,8 +82,10 @@ export class LessonsService {
     return lesson;
   }
 
-  async update(id: string, updateLessonDto: UpdateLessonDto): Promise<Lesson> {
+  async update(id: string, updateLessonDto: UpdateLessonDto, authorId: string): Promise<Lesson> {
     this.validateObjectId(id);
+    const lessonToUpdate = await this.findOne(id);
+    await this.checkCourseOwnership(lessonToUpdate.course_id.toString(), authorId);
 
     const updatedLesson = await this.lessonModel
       .findOneAndUpdate({ _id: id, is_deleted: false }, updateLessonDto, {
@@ -81,8 +103,10 @@ export class LessonsService {
     return updatedLesson;
   }
 
-  async remove(id: string): Promise<void> {
+  async remove(id: string, authorId: string): Promise<void> {
     this.validateObjectId(id);
+    const lessonToRemove = await this.findOne(id);
+    await this.checkCourseOwnership(lessonToRemove.course_id.toString(), authorId);
 
     const result = await this.lessonModel
       .findOneAndUpdate(

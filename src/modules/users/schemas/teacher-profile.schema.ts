@@ -15,6 +15,9 @@ export class TeacherProfile {
 
   @Prop({ type: String, trim: true })
   expertise?: string;
+
+  @Prop({ type: Number })
+  experience_years?: number;
 }
 
 export type TeacherProfileDocument = HydratedDocument<TeacherProfile>;
