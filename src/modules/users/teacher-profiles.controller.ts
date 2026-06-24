@@ -50,7 +50,6 @@ export class TeacherProfilesController {
   @ApiOperation({ summary: 'Cập nhật hồ sơ giáo viên bằng user id' })
   @ApiOkResponse({
     description: 'Cập nhật hồ sơ giáo viên thành công',
-    type: TeacherProfile,
   })
   @ApiBadRequestResponse({
     description: 'User Id hoặc dữ liệu gửi lên không hợp lệ',
@@ -59,7 +58,7 @@ export class TeacherProfilesController {
   update(
     @Param('userId') userId: string,
     @Body() updateTeacherProfileDto: UpdateTeacherProfileDto,
-  ): Promise<TeacherProfile> {
+  ): Promise<any> {
     return this.usersService.updateTeacherProfile(userId, updateTeacherProfileDto);
   }
 }

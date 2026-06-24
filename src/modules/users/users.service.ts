@@ -160,7 +160,7 @@ export class UsersService {
   async updateTeacherProfile(
     userId: string,
     updateTeacherProfileDto: UpdateTeacherProfileDto,
-  ): Promise<TeacherProfile> {
+  ): Promise<any> {
     this.validateObjectId(userId);
 
     const { phone, ...profileDto } = updateTeacherProfileDto;
@@ -178,11 +178,20 @@ export class UsersService {
       throw new NotFoundException('Không tìm thấy hồ sơ giáo viên');
     }
 
+    let updatedPhone = phone;
     if (phone !== undefined) {
       await this.userModel.findByIdAndUpdate(profile.user_id, { phone });
+    } else {
+      const user = await this.userModel.findById(profile.user_id).select('phone');
+      updatedPhone = user?.phone;
     }
 
-    return profile;
+    return {
+      bio: profile.bio,
+      expertise: profile.expertise,
+      experience_years: profile.experience_years,
+      phone: updatedPhone,
+    };
   }
 
   private validateObjectId(id: string): void {
