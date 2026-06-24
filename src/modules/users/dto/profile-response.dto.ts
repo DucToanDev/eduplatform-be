@@ -33,6 +33,9 @@ export class TeacherProfileDataDto {
 
   @ApiPropertyOptional({ example: 'Mathematics, Algebra, Geometry' })
   readonly expertise?: string;
+
+  @ApiPropertyOptional({ example: 5 })
+  readonly experience_years?: number;
 }
 
 export class TeacherProfileResponseDto {

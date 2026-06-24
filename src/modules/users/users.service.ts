@@ -163,9 +163,11 @@ export class UsersService {
   ): Promise<TeacherProfile> {
     this.validateObjectId(id);
 
+    const { phone, ...profileDto } = updateTeacherProfileDto;
+
     const profile = await this.teacherProfileModel.findByIdAndUpdate(
       id,
-      updateTeacherProfileDto,
+      profileDto,
       {
         returnDocument: 'after',
         runValidators: true,
@@ -174,6 +176,10 @@ export class UsersService {
 
     if (!profile) {
       throw new NotFoundException('Không tìm thấy hồ sơ giáo viên');
+    }
+
+    if (phone !== undefined) {
+      await this.userModel.findByIdAndUpdate(profile.user_id, { phone });
     }
 
     return profile;
@@ -196,6 +202,7 @@ export class UsersService {
       profile: {
         bio: profile.bio,
         expertise: profile.expertise,
+        experience_years: profile.experience_years,
       },
     };
   }

@@ -14,6 +14,7 @@ Table teacher_profile {
   user_id ObjectId [pk, ref: - users.id]
   bio string
   expertise string
+  experience_years number
 }
 
 Table student_profile {
