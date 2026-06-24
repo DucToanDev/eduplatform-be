@@ -46,20 +46,20 @@ export class TeacherProfilesController {
     return this.usersService.getTeacherProfile(id);
   }
 
-  @Patch(':id')
-  @ApiOperation({ summary: 'Cập nhật hồ sơ giáo viên' })
+  @Patch('by-user/:userId')
+  @ApiOperation({ summary: 'Cập nhật hồ sơ giáo viên bằng user id' })
   @ApiOkResponse({
     description: 'Cập nhật hồ sơ giáo viên thành công',
     type: TeacherProfile,
   })
   @ApiBadRequestResponse({
-    description: 'Id hoặc dữ liệu gửi lên không hợp lệ',
+    description: 'User Id hoặc dữ liệu gửi lên không hợp lệ',
   })
   @ApiNotFoundResponse({ description: 'Không tìm thấy hồ sơ giáo viên' })
   update(
-    @Param('id') id: string,
+    @Param('userId') userId: string,
     @Body() updateTeacherProfileDto: UpdateTeacherProfileDto,
   ): Promise<TeacherProfile> {
-    return this.usersService.updateTeacherProfile(id, updateTeacherProfileDto);
+    return this.usersService.updateTeacherProfile(userId, updateTeacherProfileDto);
   }
 }

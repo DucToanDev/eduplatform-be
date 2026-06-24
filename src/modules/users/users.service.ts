@@ -158,15 +158,15 @@ export class UsersService {
   }
 
   async updateTeacherProfile(
-    id: string,
+    userId: string,
     updateTeacherProfileDto: UpdateTeacherProfileDto,
   ): Promise<TeacherProfile> {
-    this.validateObjectId(id);
+    this.validateObjectId(userId);
 
     const { phone, ...profileDto } = updateTeacherProfileDto;
 
-    const profile = await this.teacherProfileModel.findByIdAndUpdate(
-      id,
+    const profile = await this.teacherProfileModel.findOneAndUpdate(
+      { user_id: new Types.ObjectId(userId) },
       profileDto,
       {
         returnDocument: 'after',
