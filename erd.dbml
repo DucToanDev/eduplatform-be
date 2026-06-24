@@ -14,6 +14,7 @@ Table teacher_profile {
   user_id ObjectId [pk, ref: - users.id]
   bio string
   expertise string
+  experience_years number
 }
 
 Table student_profile {
@@ -184,4 +185,13 @@ Table RefreshTokens {
   token string
   expires_at timestamp
   created_at timestamp
+}
+
+Table QuizSubmissions {
+  id ObjectId [pk]
+  quiz_id ObjectId [ref: > Quizzes.id]
+  student_id ObjectId [ref: > users.id]
+  answers json // array of { question_id, selected_index, is_correct, correct_option_index }
+  score number // score percentage or correct count
+  submitted_at timestamp
 }

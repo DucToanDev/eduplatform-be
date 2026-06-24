@@ -107,17 +107,6 @@ export class UsersService {
     return this.buildStudentProfileResponse(profile);
   }
 
-  async getTeacherProfile(id: string): Promise<TeacherProfileResponseDto> {
-    this.validateObjectId(id);
-
-    const profile = await this.teacherProfileModel.findById(id);
-
-    if (!profile) {
-      throw new NotFoundException('Không tìm thấy hồ sơ giáo viên');
-    }
-
-    return this.buildTeacherProfileResponse(profile);
-  }
 
   async getTeacherProfileByUserId(
     userId: string,
@@ -158,17 +147,20 @@ export class UsersService {
   }
 
   async updateTeacherProfile(
-    id: string,
+    userId: string,
     updateTeacherProfileDto: UpdateTeacherProfileDto,
-  ): Promise<TeacherProfile> {
-    this.validateObjectId(id);
+  ): Promise<any> {
+    this.validateObjectId(userId);
 
-    const profile = await this.teacherProfileModel.findByIdAndUpdate(
-      id,
-      updateTeacherProfileDto,
+    const { phone, ...profileDto } = updateTeacherProfileDto;
+
+    const profile = await this.teacherProfileModel.findOneAndUpdate(
+      { user_id: new Types.ObjectId(userId) },
+      profileDto,
       {
         returnDocument: 'after',
         runValidators: true,
+        upsert: true,
       },
     );
 
@@ -176,7 +168,20 @@ export class UsersService {
       throw new NotFoundException('Không tìm thấy hồ sơ giáo viên');
     }
 
-    return profile;
+    let updatedPhone = phone;
+    if (phone !== undefined) {
+      await this.userModel.findByIdAndUpdate(profile.user_id, { phone });
+    } else {
+      const user = await this.userModel.findById(profile.user_id).select('phone');
+      updatedPhone = user?.phone;
+    }
+
+    return {
+      bio: profile.bio,
+      expertise: profile.expertise,
+      experience_years: profile.experience_years,
+      phone: updatedPhone,
+    };
   }
 
   private validateObjectId(id: string): void {
@@ -196,6 +201,7 @@ export class UsersService {
       profile: {
         bio: profile.bio,
         expertise: profile.expertise,
+        experience_years: profile.experience_years,
       },
     };
   }
