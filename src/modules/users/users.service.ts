@@ -171,6 +171,7 @@ export class UsersService {
       {
         returnDocument: 'after',
         runValidators: true,
+        upsert: true,
       },
     );
 
