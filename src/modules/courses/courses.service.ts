@@ -8,11 +8,13 @@ import { Model } from 'mongoose';
 import { CreateCourseDto } from './dto/create-course.dto';
 import { UpdateCourseDto } from './dto/update-course.dto';
 import { Course, CourseDocument, CourseStatus } from './schemas/course.schema';
+import { CourseCategoriesService } from '../course-categories/course-categories.service';
 
 @Injectable()
 export class CoursesService {
   constructor(
     @InjectModel(Course.name) private courseModel: Model<CourseDocument>,
+    private readonly courseCategoriesService: CourseCategoriesService,
   ) {}
 
   async create(
@@ -40,14 +42,8 @@ export class CoursesService {
   }
 
   async findCategories(): Promise<string[]> {
-    const categories = await this.courseModel.distinct('category', {
-      category: { $nin: [null, ''] },
-      status: CourseStatus.PUBLISHED,
-      is_marketplace: true,
-      is_deleted: false,
-    });
-
-    return categories.sort((a, b) => a.localeCompare(b));
+    const categories = await this.courseCategoriesService.findAll();
+    return categories.map((category) => category.name);
   }
 
   async findTeacherCourses(authorId: string): Promise<Course[]> {
