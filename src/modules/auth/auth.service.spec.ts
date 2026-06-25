@@ -1,9 +1,15 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-return, @typescript-eslint/require-await */
 import {
   ConflictException,
   ForbiddenException,
   UnauthorizedException,
 } from '@nestjs/common';
 import * as bcrypt from 'bcryptjs';
+
+jest.mock('uuid', () => ({
+  v4: () => 'refresh-token-value',
+}));
+
 import { AuthService } from './auth.service';
 import { UserRole } from '../users/schemas/users.schema';
 
@@ -18,6 +24,12 @@ describe('AuthService', () => {
 
   const teacherProfileModel = {
     create: jest.fn(),
+  };
+
+  const refreshTokenModel = {
+    create: jest.fn(),
+    findOne: jest.fn(),
+    deleteOne: jest.fn(),
   };
 
   const jwtService = {
@@ -40,9 +52,11 @@ describe('AuthService', () => {
     service = new AuthService(
       userModel as never,
       teacherProfileModel as never,
+      refreshTokenModel as never,
       jwtService as never,
     );
     jwtService.sign.mockReturnValue('signed-jwt-token');
+    refreshTokenModel.create.mockResolvedValue({});
   });
 
   describe('signUp', () => {
@@ -77,11 +91,20 @@ describe('AuthService', () => {
           userModel.create.mock.calls[0][0].password,
         ),
       ).resolves.toBe(true);
-      expect(jwtService.sign).toHaveBeenCalledWith({ id: baseUser._id, role: baseUser.role });
+      expect(jwtService.sign).toHaveBeenCalledWith({
+        id: baseUser._id,
+        role: baseUser.role,
+      });
+      expect(refreshTokenModel.create).toHaveBeenCalledWith({
+        user_id: baseUser._id,
+        token: expect.any(String),
+        expires_at: expect.any(Date),
+      });
       expect(teacherProfileModel.create).toHaveBeenCalledWith({
         user_id: baseUser._id,
       });
-      expect(result.data).toEqual({
+      expect(result.refreshToken).toBe('refresh-token-value');
+      expect(result.response.data).toEqual({
         accessToken: 'signed-jwt-token',
         user: {
           id: baseUser._id,
@@ -129,9 +152,13 @@ describe('AuthService', () => {
         { _id: baseUser._id },
         { $set: { last_login_at: expect.any(Date) } },
       );
-      expect(jwtService.sign).toHaveBeenCalledWith({ id: baseUser._id, role: baseUser.role });
-      expect(result.data.accessToken).toBe('signed-jwt-token');
-      expect(result.data.user).toEqual({
+      expect(jwtService.sign).toHaveBeenCalledWith({
+        id: baseUser._id,
+        role: baseUser.role,
+      });
+      expect(result.refreshToken).toBe('refresh-token-value');
+      expect(result.response.data.accessToken).toBe('signed-jwt-token');
+      expect(result.response.data.user).toEqual({
         id: baseUser._id,
         fullname: baseUser.fullname,
         email: baseUser.email,

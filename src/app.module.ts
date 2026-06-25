@@ -10,6 +10,10 @@ import { LessonsModule } from './modules/lesson/lessons.module';
 import { ClassesModule } from './modules/classes/classes.module';
 import { CoursesModule } from './modules/courses/courses.module';
 import { QuizzesModule } from './modules/quizzes/quizzes.module';
+import { CustomFeatureRequestsModule } from './modules/custom-feature-requests/custom-feature-requests.module';
+import { ReportsModule } from './modules/reports/reports.module';
+import { TransactionsModule } from './modules/transactions/transactions.module';
+import { CourseCategoriesModule } from './modules/course-categories/course-categories.module';
 
 @Module({
   imports: [
@@ -28,6 +32,10 @@ import { QuizzesModule } from './modules/quizzes/quizzes.module';
     ClassesModule,
     CoursesModule,
     QuizzesModule,
+    TransactionsModule,
+    ReportsModule,
+    CustomFeatureRequestsModule,
+    CourseCategoriesModule,
   ],
   controllers: [AppController],
   providers: [],
