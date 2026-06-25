@@ -13,6 +13,7 @@ import { QuizzesModule } from './modules/quizzes/quizzes.module';
 import { CustomFeatureRequestsModule } from './modules/custom-feature-requests/custom-feature-requests.module';
 import { ReportsModule } from './modules/reports/reports.module';
 import { TransactionsModule } from './modules/transactions/transactions.module';
+import { CourseCategoriesModule } from './modules/course-categories/course-categories.module';
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { TransactionsModule } from './modules/transactions/transactions.module';
     TransactionsModule,
     ReportsModule,
     CustomFeatureRequestsModule,
+    CourseCategoriesModule,
   ],
   controllers: [AppController],
   providers: [],
