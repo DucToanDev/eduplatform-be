@@ -7,6 +7,7 @@ export enum CourseStatus {
   PENDING_APPROVAL = 'PENDING_APPROVAL',
   PUBLISHED = 'PUBLISHED',
   REJECTED = 'REJECTED',
+  HIDDEN = 'HIDDEN',
 }
 
 @Schema({
@@ -23,6 +24,9 @@ export class Course {
   @Prop({ default: '', trim: true })
   description: string;
 
+  @Prop({ default: '', trim: true })
+  category: string;
+
   @Prop({ default: false })
   is_demo: boolean;
 
@@ -34,6 +38,9 @@ export class Course {
 
   @Prop({ type: String, enum: CourseStatus, default: CourseStatus.DRAFT })
   status: CourseStatus;
+
+  @Prop({ default: false })
+  is_deleted: boolean;
 }
 
 export type CourseDocument = HydratedDocument<Course>;

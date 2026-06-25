@@ -5,6 +5,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { StudentProfilesController } from './student-profiles.controller';
 import { TeacherProfilesController } from './teacher-profiles.controller';
+import { UsersController } from './users.controller';
 import { UsersAvatarController } from './users-avatar.controller';
 import { UsersService } from './users.service';
 import { UploadsModule } from '../uploads/uploads.module';
@@ -41,6 +42,7 @@ import { ClassesModule } from '../classes/classes.module';
     ]),
   ],
   controllers: [
+    UsersController,
     StudentProfilesController,
     TeacherProfilesController,
     UsersAvatarController,

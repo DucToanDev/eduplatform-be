@@ -7,10 +7,11 @@ import {
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { Request } from 'express';
+import { UserRole } from '../../users/schemas/users.schema';
 
 export type AuthenticatedUser = {
   id: string;
-  role: string;
+  role: UserRole;
   exp?: number;
 };
 
@@ -34,7 +35,11 @@ export class JwtAuthGuard implements CanActivate {
     }
 
     try {
-      const payload = await this.jwtService.verifyAsync<{ id: string, role: string, exp: number }>(token, {
+      const payload = await this.jwtService.verifyAsync<{
+        id: string;
+        role: UserRole;
+        exp: number;
+      }>(token, {
         secret: this.configService.get<string>('JWT_SECRET'),
       });
 
@@ -46,9 +51,11 @@ export class JwtAuthGuard implements CanActivate {
   }
 
   private extractToken(request: Request): string | undefined {
-    if (request.cookies && request.cookies.access_token) {
-      return request.cookies.access_token;
+    const cookieToken = request.cookies?.access_token as unknown;
+    if (typeof cookieToken === 'string') {
+      return cookieToken;
     }
+
     const [type, token] = request.headers.authorization?.split(' ') ?? [];
     return type === 'Bearer' ? token : undefined;
   }
