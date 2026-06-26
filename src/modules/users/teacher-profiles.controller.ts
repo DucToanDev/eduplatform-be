@@ -34,7 +34,6 @@ export class TeacherProfilesController {
     return this.usersService.getTeacherProfileByUserId(userId);
   }
 
-
   @Patch('by-user/:userId')
   @ApiOperation({ summary: 'Cập nhật hồ sơ giáo viên bằng user id' })
   @ApiOkResponse({
@@ -48,6 +47,9 @@ export class TeacherProfilesController {
     @Param('userId') userId: string,
     @Body() updateTeacherProfileDto: UpdateTeacherProfileDto,
   ): Promise<any> {
-    return this.usersService.updateTeacherProfile(userId, updateTeacherProfileDto);
+    return this.usersService.updateTeacherProfile(
+      userId,
+      updateTeacherProfileDto,
+    );
   }
 }

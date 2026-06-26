@@ -14,4 +14,5 @@ export class LessonRewardConfig {
 }
 
 export type LessonRewardConfigDocument = HydratedDocument<LessonRewardConfig>;
-export const LessonRewardConfigSchema = SchemaFactory.createForClass(LessonRewardConfig);
+export const LessonRewardConfigSchema =
+  SchemaFactory.createForClass(LessonRewardConfig);

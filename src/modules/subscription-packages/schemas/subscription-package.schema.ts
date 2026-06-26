@@ -33,4 +33,5 @@ export class SubscriptionPackage {
   features: any;
 }
 
-export const SubscriptionPackageSchema = SchemaFactory.createForClass(SubscriptionPackage);
+export const SubscriptionPackageSchema =
+  SchemaFactory.createForClass(SubscriptionPackage);

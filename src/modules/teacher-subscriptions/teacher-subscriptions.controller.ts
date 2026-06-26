@@ -11,7 +11,9 @@ import { TeacherSubscriptionsService } from './teacher-subscriptions.service';
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard, RolesGuard)
 export class TeacherSubscriptionsController {
-  constructor(private readonly teacherSubsService: TeacherSubscriptionsService) {}
+  constructor(
+    private readonly teacherSubsService: TeacherSubscriptionsService,
+  ) {}
 
   @Get('current')
   @Roles(UserRole.TEACHER)

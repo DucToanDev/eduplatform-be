@@ -51,4 +51,3 @@ export class CourseQueryDto extends PaginationQueryDto {
   @ApiPropertyOptional({ type: Number, description: 'Số lượng item mỗi trang' })
   limit: number = 10;
 }
-

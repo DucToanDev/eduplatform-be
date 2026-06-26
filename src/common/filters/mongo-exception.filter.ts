@@ -1,4 +1,9 @@
-import { ArgumentsHost, Catch, ExceptionFilter, HttpStatus } from '@nestjs/common';
+import {
+  ArgumentsHost,
+  Catch,
+  ExceptionFilter,
+  HttpStatus,
+} from '@nestjs/common';
 import { MongoServerError } from 'mongodb';
 import { Error as MongooseError } from 'mongoose';
 import { ErrorLogsService } from '../../modules/error-logs/error-logs.service';
@@ -39,7 +44,7 @@ export class MongoExceptionFilter implements ExceptionFilter {
       path: request.url,
       message: message,
       details: exception.stack,
-      user_id: (request as any).user?.userId,
+      user_id: request.user?.userId,
     });
 
     response.status(status).json({

@@ -5,7 +5,11 @@ import { ErrorLogsController } from './error-logs.controller';
 import { ErrorLog, ErrorLogSchema } from './schemas/error-log.schema';
 
 @Module({
-  imports: [MongooseModule.forFeature([{ name: ErrorLog.name, schema: ErrorLogSchema }])],
+  imports: [
+    MongooseModule.forFeature([
+      { name: ErrorLog.name, schema: ErrorLogSchema },
+    ]),
+  ],
   controllers: [ErrorLogsController],
   providers: [ErrorLogsService],
   exports: [ErrorLogsService],

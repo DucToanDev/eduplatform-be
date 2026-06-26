@@ -1,5 +1,11 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsArray, IsEnum, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import {
+  IsArray,
+  IsEnum,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+} from 'class-validator';
 
 export class CreateStudentDto {
   @ApiProperty({ description: 'Họ và tên học sinh' })
@@ -27,7 +33,10 @@ export class CreateStudentDto {
   @IsString()
   password?: string;
 
-  @ApiPropertyOptional({ description: 'Danh sách ID lớp học (để thêm học sinh vào các lớp)', type: [String] })
+  @ApiPropertyOptional({
+    description: 'Danh sách ID lớp học (để thêm học sinh vào các lớp)',
+    type: [String],
+  })
   @IsOptional()
   @IsArray()
   @IsString({ each: true })

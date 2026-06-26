@@ -67,7 +67,11 @@ export class LessonsController {
   @Patch(':id')
   @ApiOperation({ summary: 'Cập nhật thông tin bài học' })
   @ApiParam({ name: 'id', type: 'string', description: 'ID của bài học' })
-  update(@Param('id') id: string, @Request() req, @Body() updateLessonDto: UpdateLessonDto) {
+  update(
+    @Param('id') id: string,
+    @Request() req,
+    @Body() updateLessonDto: UpdateLessonDto,
+  ) {
     return this.lessonsService.update(id, updateLessonDto, req.user.id);
   }
 

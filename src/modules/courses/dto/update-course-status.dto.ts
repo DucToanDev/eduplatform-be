@@ -1,5 +1,11 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsEnum, IsNotEmpty, IsOptional, IsString, ValidateIf } from 'class-validator';
+import {
+  IsEnum,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  ValidateIf,
+} from 'class-validator';
 import { CourseStatus } from '../schemas/course.schema';
 
 export class UpdateCourseStatusDto {
@@ -17,7 +23,9 @@ export class UpdateCourseStatusDto {
     description: 'Lý do từ chối (bắt buộc khi status = REJECTED)',
   })
   @ValidateIf((o) => o.status === CourseStatus.REJECTED)
-  @IsNotEmpty({ message: 'Lý do từ chối không được để trống khi reject khóa học' })
+  @IsNotEmpty({
+    message: 'Lý do từ chối không được để trống khi reject khóa học',
+  })
   @IsString()
   @IsOptional()
   rejection_reason?: string;

@@ -18,7 +18,11 @@ export class TeacherSubscription {
   @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'Users', required: true })
   teacher_id: Types.ObjectId;
 
-  @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'SubscriptionPackage', required: true })
+  @Prop({
+    type: MongooseSchema.Types.ObjectId,
+    ref: 'SubscriptionPackage',
+    required: true,
+  })
   package_id: Types.ObjectId;
 
   @Prop({ type: MongooseSchema.Types.Mixed })
@@ -30,8 +34,13 @@ export class TeacherSubscription {
   @Prop({ type: Date, required: true })
   end_date: Date;
 
-  @Prop({ type: String, enum: TeacherSubscriptionStatus, default: TeacherSubscriptionStatus.ACTIVE })
+  @Prop({
+    type: String,
+    enum: TeacherSubscriptionStatus,
+    default: TeacherSubscriptionStatus.ACTIVE,
+  })
   status: TeacherSubscriptionStatus;
 }
 
-export const TeacherSubscriptionSchema = SchemaFactory.createForClass(TeacherSubscription);
+export const TeacherSubscriptionSchema =
+  SchemaFactory.createForClass(TeacherSubscription);
