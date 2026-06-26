@@ -103,7 +103,7 @@ export class ClassesService {
         teacher_id: new Types.ObjectId(teacherId),
       },
       { $set: updatePayload },
-      { new: true, runValidators: true },
+      { returnDocument: 'after', runValidators: true },
     );
 
     if (!updatedClass) {

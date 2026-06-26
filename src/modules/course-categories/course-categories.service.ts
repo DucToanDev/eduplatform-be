@@ -58,7 +58,7 @@ export class CourseCategoriesService {
 
     try {
       const category = await this.categoryModel.findByIdAndUpdate(id, dto, {
-        new: true,
+        returnDocument: 'after',
         runValidators: true,
       });
 
@@ -81,7 +81,7 @@ export class CourseCategoriesService {
     const category = await this.categoryModel.findByIdAndUpdate(
       id,
       { is_active: false },
-      { new: true, runValidators: true },
+      { returnDocument: 'after', runValidators: true },
     );
 
     if (!category) {

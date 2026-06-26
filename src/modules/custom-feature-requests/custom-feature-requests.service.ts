@@ -75,7 +75,7 @@ export class CustomFeatureRequestsService {
       .findByIdAndUpdate(
         id,
         { status: dto.status },
-        { new: true, runValidators: true },
+        { returnDocument: 'after', runValidators: true },
       )
       .populate('teacher_id', 'fullname email phone avatar_url role');
 
