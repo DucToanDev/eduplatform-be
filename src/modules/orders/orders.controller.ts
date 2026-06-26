@@ -20,7 +20,7 @@ export class OrdersController {
   @Roles(UserRole.TEACHER)
   @ApiOperation({ summary: 'Tạo đơn hàng mua Gói thuê bao (Dành cho Giáo viên)' })
   async createOrder(@Req() req: any, @Body() createDto: CreateOrderDto) {
-    return this.ordersService.createOrder(req.user.userId, createDto);
+    return this.ordersService.createOrder(req.user.id, createDto);
   }
 
   @Get()
@@ -28,7 +28,7 @@ export class OrdersController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @ApiOperation({ summary: 'Lấy danh sách đơn hàng của tôi' })
   async getMyOrders(@Req() req: any) {
-    return this.ordersService.getUserOrders(req.user.userId);
+    return this.ordersService.getUserOrders(req.user.id);
   }
 
   @Get(':id')
@@ -36,7 +36,7 @@ export class OrdersController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @ApiOperation({ summary: 'Xem chi tiết 1 đơn hàng' })
   async getOrderById(@Req() req: any, @Param('id', ParseObjectIdPipe) id: string) {
-    return this.ordersService.getOrderById(id, req.user.userId);
+    return this.ordersService.getOrderById(id, req.user.id);
   }
 
   @Patch(':id/cancel')
@@ -44,7 +44,7 @@ export class OrdersController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @ApiOperation({ summary: 'Hủy đơn hàng đang chờ thanh toán' })
   async cancelOrder(@Req() req: any, @Param('id', ParseObjectIdPipe) id: string) {
-    return this.ordersService.cancelOrder(id, req.user.userId);
+    return this.ordersService.cancelOrder(id, req.user.id);
   }
 
   @Post('webhook/sepay')
