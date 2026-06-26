@@ -11,7 +11,8 @@ export class StudentListResponseDto {
   readonly username: string;
 
   @ApiProperty({
-    example: 'https://ui-avatars.com/api/?name=hocsinh1&background=f97316&color=ffffff&size=128',
+    example:
+      'https://ui-avatars.com/api/?name=hocsinh1&background=f97316&color=ffffff&size=128',
   })
   readonly avatar_url: string;
 

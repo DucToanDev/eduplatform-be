@@ -1,4 +1,10 @@
-import { ExceptionFilter, Catch, ArgumentsHost, HttpException, HttpStatus } from '@nestjs/common';
+import {
+  ExceptionFilter,
+  Catch,
+  ArgumentsHost,
+  HttpException,
+  HttpStatus,
+} from '@nestjs/common';
 import { Request, Response } from 'express';
 import { ErrorLogsService } from '../../modules/error-logs/error-logs.service';
 
@@ -18,7 +24,7 @@ export class AllExceptionsFilter implements ExceptionFilter {
     if (exception instanceof HttpException) {
       status = exception.getStatus();
       const exceptionResponse: any = exception.getResponse();
-      
+
       // Nếu exception từ ValidationPipe hoặc có cấu trúc chuẩn thì lấy message của nó
       if (typeof exceptionResponse === 'object' && exceptionResponse !== null) {
         message = exceptionResponse.message || exception.message;
@@ -29,7 +35,10 @@ export class AllExceptionsFilter implements ExceptionFilter {
       }
     } else {
       // Log lỗi hệ thống ra console để dev xem, KHÔNG lộ ra ngoài
-      console.error(`[UnhandledException] ${request.method} ${request.url}`, exception);
+      console.error(
+        `[UnhandledException] ${request.method} ${request.url}`,
+        exception,
+      );
     }
 
     // Fire and forget logging

@@ -127,7 +127,7 @@ export class ProgressService {
   async getOwnProgress(studentId: string): Promise<StudentProgress[]> {
     return this.progressModel
       .find({ student_id: new Types.ObjectId(studentId) })
-      .populate('lesson_id', 'title order_index course_id')
+      .populate('lesson_id', 'title order_index class_id')
       .exec();
   }
 
@@ -142,7 +142,7 @@ export class ProgressService {
         student_id: new Types.ObjectId(studentId),
         lesson_id: { $in: lessonIds },
       })
-      .populate('lesson_id', 'title order_index course_id')
+      .populate('lesson_id', 'title order_index class_id')
       .exec();
   }
 
@@ -182,7 +182,7 @@ export class ProgressService {
     return this.progressModel
       .find(filter)
       .populate('student_id', 'fullname username avatar_url')
-      .populate('lesson_id', 'title order_index course_id')
+      .populate('lesson_id', 'title order_index class_id')
       .exec();
   }
 

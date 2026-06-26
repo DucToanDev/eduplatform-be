@@ -1,4 +1,15 @@
-import { Controller, Get, Post, Body, Param, Query, UseGuards, Request, Patch, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  Query,
+  UseGuards,
+  Request,
+  Patch,
+  Delete,
+} from '@nestjs/common';
 import { QuizzesService } from './quizzes.service';
 import { CreateQuizDto } from './dto/create-quiz.dto';
 import { CreateQuestionDto } from './dto/create-question.dto';
@@ -13,7 +24,7 @@ import { UserRole } from '../users/schemas/users.schema';
 @ApiTags('Quizzes')
 @Controller('quizzes')
 export class QuizzesController {
-  constructor(private readonly quizzesService: QuizzesService) { }
+  constructor(private readonly quizzesService: QuizzesService) {}
 
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard, RolesGuard)
@@ -36,7 +47,9 @@ export class QuizzesController {
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   @Get('course/:courseId')
-  @ApiOperation({ summary: 'Lấy danh sách Quiz (Bài kiểm tra định kỳ) của một Khóa học' })
+  @ApiOperation({
+    summary: 'Lấy danh sách Quiz (Bài kiểm tra định kỳ) của một Khóa học',
+  })
   getQuizzesByCourse(@Param('courseId') courseId: string) {
     return this.quizzesService.getQuizzesByCourse(courseId);
   }
@@ -44,7 +57,9 @@ export class QuizzesController {
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   @Get('lesson/:lessonId')
-  @ApiOperation({ summary: 'Lấy danh sách Quiz (Bài tập ngắn) của một Bài học' })
+  @ApiOperation({
+    summary: 'Lấy danh sách Quiz (Bài tập ngắn) của một Bài học',
+  })
   getQuizzesByLesson(@Param('lessonId') lessonId: string) {
     return this.quizzesService.getQuizzesByLesson(lessonId);
   }
@@ -52,7 +67,9 @@ export class QuizzesController {
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   @Get(':id')
-  @ApiOperation({ summary: 'Lấy thông tin Quiz và danh sách câu hỏi (không kèm đáp án)' })
+  @ApiOperation({
+    summary: 'Lấy thông tin Quiz và danh sách câu hỏi (không kèm đáp án)',
+  })
   getQuizDetails(@Param('id') id: string) {
     return this.quizzesService.getQuizDetails(id);
   }
@@ -65,7 +82,8 @@ export class QuizzesController {
   submitQuiz(
     @Param('id') id: string,
     @Request() req,
-    @Body() body: { answers: { question_id: string, selected_index: number }[] }
+    @Body()
+    body: { answers: { question_id: string; selected_index: number }[] },
   ) {
     return this.quizzesService.submitQuiz(id, body.answers, req.user.id);
   }
@@ -80,9 +98,13 @@ export class QuizzesController {
   getQuestionBankByCourse(
     @Param('courseId') courseId: string,
     @Query() paginationQuery: PaginationQueryDto,
-    @Request() req
+    @Request() req,
   ) {
-    return this.quizzesService.getQuestionBankByCourse(courseId, req.user.id, paginationQuery);
+    return this.quizzesService.getQuestionBankByCourse(
+      courseId,
+      req.user.id,
+      paginationQuery,
+    );
   }
 
   @ApiBearerAuth()
@@ -99,8 +121,16 @@ export class QuizzesController {
   @Roles(UserRole.TEACHER)
   @Patch('questions/:id')
   @ApiOperation({ summary: 'Cập nhật nội dung/đáp án câu hỏi (Giáo viên)' })
-  updateQuestion(@Param('id') id: string, @Body() updateQuestionDto: UpdateQuestionDto, @Request() req) {
-    return this.quizzesService.updateQuestion(id, updateQuestionDto, req.user.id);
+  updateQuestion(
+    @Param('id') id: string,
+    @Body() updateQuestionDto: UpdateQuestionDto,
+    @Request() req,
+  ) {
+    return this.quizzesService.updateQuestion(
+      id,
+      updateQuestionDto,
+      req.user.id,
+    );
   }
 
   @ApiBearerAuth()
@@ -118,8 +148,14 @@ export class QuizzesController {
   @UseGuards(JwtAuthGuard)
   @Get('submissions/history')
   @ApiOperation({ summary: 'Lấy danh sách lịch sử nộp bài của học sinh' })
-  getStudentSubmissions(@Query() paginationQuery: PaginationQueryDto, @Request() req) {
-    return this.quizzesService.getStudentSubmissions(req.user.id, paginationQuery);
+  getStudentSubmissions(
+    @Query() paginationQuery: PaginationQueryDto,
+    @Request() req,
+  ) {
+    return this.quizzesService.getStudentSubmissions(
+      req.user.id,
+      paginationQuery,
+    );
   }
 
   @ApiBearerAuth()

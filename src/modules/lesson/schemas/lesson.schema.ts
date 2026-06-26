@@ -29,6 +29,5 @@ export class Lesson {
 
 export const LessonSchema = SchemaFactory.createForClass(Lesson);
 
-
 LessonSchema.index({ class_id: 1, is_deleted: 1, order_index: 1 });
 LessonSchema.index({ is_deleted: 1, order_index: 1 });

@@ -68,7 +68,7 @@ Table Lesson_Materials {
 
 Table Lessons {
   id ObjectId [pk]
-  course_id ObjectId [ref: > Courses.id]
+  class_id ObjectId [ref: > Classes.id]
   title string
   content string
   video_url string

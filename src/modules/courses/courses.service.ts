@@ -30,7 +30,10 @@ export class CoursesService {
     private readonly categoryModel: Model<CourseCategoryDocument>,
   ) {}
 
-  async create(dto: CreateCourseDto, authorId: string): Promise<CourseDocument> {
+  async create(
+    dto: CreateCourseDto,
+    authorId: string,
+  ): Promise<CourseDocument> {
     this.validateObjectId(authorId);
 
     if (dto.category) {
@@ -40,9 +43,7 @@ export class CoursesService {
     const course = await this.courseModel.create({
       ...dto,
       author_id: new Types.ObjectId(authorId),
-      category: dto.category
-        ? new Types.ObjectId(dto.category)
-        : undefined,
+      category: dto.category ? new Types.ObjectId(dto.category) : undefined,
       status: CourseStatus.DRAFT,
     });
 
@@ -220,9 +221,7 @@ export class CoursesService {
     return course;
   }
 
-  private buildCourseFilter(
-    query: CourseQueryDto,
-  ): Record<string, unknown> {
+  private buildCourseFilter(query: CourseQueryDto): Record<string, unknown> {
     const filter: Record<string, unknown> = {
       is_deleted: false,
     };
@@ -238,9 +237,7 @@ export class CoursesService {
 
     if (query.is_marketplace !== undefined) {
       if (query.is_marketplace !== 'true' && query.is_marketplace !== 'false') {
-        throw new BadRequestException(
-          'is_marketplace phải là true hoặc false',
-        );
+        throw new BadRequestException('is_marketplace phải là true hoặc false');
       }
       filter.is_marketplace = query.is_marketplace === 'true';
     }
@@ -266,7 +263,9 @@ export class CoursesService {
     });
 
     if (!category) {
-      throw new NotFoundException('Danh mục khóa học không tồn tại hoặc đã bị vô hiệu hóa');
+      throw new NotFoundException(
+        'Danh mục khóa học không tồn tại hoặc đã bị vô hiệu hóa',
+      );
     }
   }
 

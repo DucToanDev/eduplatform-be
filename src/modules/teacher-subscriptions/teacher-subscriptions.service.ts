@@ -1,7 +1,11 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
-import { TeacherSubscription, TeacherSubscriptionDocument, TeacherSubscriptionStatus } from './schemas/teacher-subscription.schema';
+import {
+  TeacherSubscription,
+  TeacherSubscriptionDocument,
+  TeacherSubscriptionStatus,
+} from './schemas/teacher-subscription.schema';
 import { SubscriptionPackagesService } from '../subscription-packages/subscription-packages.service';
 
 @Injectable()
@@ -12,17 +16,33 @@ export class TeacherSubscriptionsService {
     private readonly subscriptionPackagesService: SubscriptionPackagesService,
   ) {}
 
-  async activateBasicSubscription(teacherId: string): Promise<TeacherSubscriptionDocument | null> {
-    const basicPackage = await this.subscriptionPackagesService['subscriptionPackageModel'].findOne({ price: 0, is_active: true }).exec();
+  async activateBasicSubscription(
+    teacherId: string,
+  ): Promise<TeacherSubscriptionDocument | null> {
+    const basicPackage = await this.subscriptionPackagesService[
+      'subscriptionPackageModel'
+    ]
+      .findOne({ price: 0, is_active: true })
+      .exec();
     if (!basicPackage) return null;
-    return this.activateSubscription(teacherId, basicPackage._id.toString(), basicPackage.features);
+    return this.activateSubscription(
+      teacherId,
+      basicPackage._id.toString(),
+      basicPackage.features,
+    );
   }
 
-  async activateSubscription(teacherId: string, packageId: string, featuresSnapshot: any): Promise<TeacherSubscriptionDocument> {
-    const activeSub = await this.teacherSubscriptionModel.findOne({
-      teacher_id: new Types.ObjectId(teacherId),
-      status: TeacherSubscriptionStatus.ACTIVE,
-    }).exec();
+  async activateSubscription(
+    teacherId: string,
+    packageId: string,
+    featuresSnapshot: any,
+  ): Promise<TeacherSubscriptionDocument> {
+    const activeSub = await this.teacherSubscriptionModel
+      .findOne({
+        teacher_id: new Types.ObjectId(teacherId),
+        status: TeacherSubscriptionStatus.ACTIVE,
+      })
+      .exec();
 
     // 1. Nếu là Gia hạn (Cùng packageId)
     if (activeSub && activeSub.package_id.toString() === packageId) {
@@ -55,21 +75,32 @@ export class TeacherSubscriptionsService {
     return newSub.save();
   }
 
-  async getCurrentSubscription(teacherId: string): Promise<TeacherSubscriptionDocument | null> {
+  async getCurrentSubscription(
+    teacherId: string,
+  ): Promise<TeacherSubscriptionDocument | null> {
     return this.teacherSubscriptionModel
-      .findOne({ teacher_id: new Types.ObjectId(teacherId), status: TeacherSubscriptionStatus.ACTIVE })
+      .findOne({
+        teacher_id: new Types.ObjectId(teacherId),
+        status: TeacherSubscriptionStatus.ACTIVE,
+      })
       .populate('package_id')
       .exec();
   }
 
-  async cancelSubscription(teacherId: string): Promise<TeacherSubscriptionDocument> {
-    const activeSub = await this.teacherSubscriptionModel.findOne({
-      teacher_id: new Types.ObjectId(teacherId),
-      status: TeacherSubscriptionStatus.ACTIVE,
-    }).exec();
+  async cancelSubscription(
+    teacherId: string,
+  ): Promise<TeacherSubscriptionDocument> {
+    const activeSub = await this.teacherSubscriptionModel
+      .findOne({
+        teacher_id: new Types.ObjectId(teacherId),
+        status: TeacherSubscriptionStatus.ACTIVE,
+      })
+      .exec();
 
     if (!activeSub) {
-      throw new NotFoundException('Không tìm thấy gói thuê bao nào đang hoạt động');
+      throw new NotFoundException(
+        'Không tìm thấy gói thuê bao nào đang hoạt động',
+      );
     }
 
     activeSub.status = TeacherSubscriptionStatus.CANCELED;
@@ -79,7 +110,9 @@ export class TeacherSubscriptionsService {
     return basicSub || activeSub;
   }
 
-  async getSubscriptionHistory(teacherId: string): Promise<TeacherSubscriptionDocument[]> {
+  async getSubscriptionHistory(
+    teacherId: string,
+  ): Promise<TeacherSubscriptionDocument[]> {
     return this.teacherSubscriptionModel
       .find({ teacher_id: new Types.ObjectId(teacherId) })
       .sort({ created_at: -1 })

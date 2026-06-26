@@ -46,7 +46,10 @@ export class AuthService {
   ): Promise<{ response: AuthTokenResponseDto; refreshToken: string }> {
     const accessToken = this.jwtService.sign({ id: user._id, role: user.role });
     const refreshToken = uuidv4();
-    const hashedToken = crypto.createHash('sha256').update(refreshToken).digest('hex');
+    const hashedToken = crypto
+      .createHash('sha256')
+      .update(refreshToken)
+      .digest('hex');
 
     const expiresAt = new Date();
     expiresAt.setDate(expiresAt.getDate() + 7); // 7 days TTL
@@ -77,18 +80,28 @@ export class AuthService {
   }
 
   async refreshTokens(refreshToken: string) {
-    if (!refreshToken) throw new UnauthorizedException('Không tìm thấy Refresh Token');
+    if (!refreshToken)
+      throw new UnauthorizedException('Không tìm thấy Refresh Token');
 
-    const hashedToken = crypto.createHash('sha256').update(refreshToken).digest('hex');
-    const tokenDoc = await this.refreshTokenModel.findOne({ token: hashedToken }).exec();
+    const hashedToken = crypto
+      .createHash('sha256')
+      .update(refreshToken)
+      .digest('hex');
+    const tokenDoc = await this.refreshTokenModel
+      .findOne({ token: hashedToken })
+      .exec();
 
     if (!tokenDoc) {
-      throw new UnauthorizedException('Refresh Token không hợp lệ hoặc đã hết hạn');
+      throw new UnauthorizedException(
+        'Refresh Token không hợp lệ hoặc đã hết hạn',
+      );
     }
 
     const user = await this.userModel.findById(tokenDoc.user_id).exec();
     if (!user || !user.status) {
-      throw new UnauthorizedException('Tài khoản đã bị khóa hoặc không tồn tại');
+      throw new UnauthorizedException(
+        'Tài khoản đã bị khóa hoặc không tồn tại',
+      );
     }
 
     // Xóa token cũ (Rotation)
@@ -100,11 +113,16 @@ export class AuthService {
 
   async logout(refreshToken: string) {
     if (!refreshToken) return;
-    const hashedToken = crypto.createHash('sha256').update(refreshToken).digest('hex');
+    const hashedToken = crypto
+      .createHash('sha256')
+      .update(refreshToken)
+      .digest('hex');
     await this.refreshTokenModel.deleteOne({ token: hashedToken }).exec();
   }
 
-  async signUp(signUpDTO: SignUpDto): Promise<{ response: AuthTokenResponseDto; refreshToken: string }> {
+  async signUp(
+    signUpDTO: SignUpDto,
+  ): Promise<{ response: AuthTokenResponseDto; refreshToken: string }> {
     const { fullname, email, password } = signUpDTO;
     const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -120,7 +138,9 @@ export class AuthService {
         user_id: user._id,
       });
 
-      await this.teacherSubsService.activateBasicSubscription(user._id.toString());
+      await this.teacherSubsService.activateBasicSubscription(
+        user._id.toString(),
+      );
 
       return await this.buildAuthResponse(
         'Đăng ký tài khoản giáo viên thành công',
@@ -135,7 +155,9 @@ export class AuthService {
     }
   }
 
-  async login(loginDto: LoginDto): Promise<{ response: AuthTokenResponseDto; refreshToken: string }> {
+  async login(
+    loginDto: LoginDto,
+  ): Promise<{ response: AuthTokenResponseDto; refreshToken: string }> {
     const { email, password } = loginDto;
     const user = await this.userModel.findOne({ email });
 
@@ -164,7 +186,9 @@ export class AuthService {
     return await this.buildAuthResponse('Đăng nhập thành công', user);
   }
 
-  async adminLogin(loginDto: LoginDto): Promise<{ response: AuthTokenResponseDto; refreshToken: string }> {
+  async adminLogin(
+    loginDto: LoginDto,
+  ): Promise<{ response: AuthTokenResponseDto; refreshToken: string }> {
     const { email, password } = loginDto;
     const user = await this.userModel.findOne({ email });
 
@@ -195,7 +219,9 @@ export class AuthService {
     return await this.buildAuthResponse('Đăng nhập Admin thành công', user);
   }
 
-  async studentLogin(loginDto: any): Promise<{ response: AuthTokenResponseDto; refreshToken: string }> {
+  async studentLogin(
+    loginDto: any,
+  ): Promise<{ response: AuthTokenResponseDto; refreshToken: string }> {
     const { username, password } = loginDto;
     const user = await this.userModel.findOne({ username });
 
