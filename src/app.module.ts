@@ -8,6 +8,9 @@ import { UploadsModule } from './modules/uploads/uploads.module';
 import { UsersModule } from './modules/users/users.module';
 import { LessonsModule } from './modules/lesson/lessons.module';
 import { ClassesModule } from './modules/classes/classes.module';
+import { LessonMaterialsModule } from './modules/lesson-materials/lesson-materials.module';
+import { ProgressModule } from './modules/progress/progress.module';
+import { NotificationsModule } from './modules/notifications/notifications.module';
 import { CoursesModule } from './modules/courses/courses.module';
 import { QuizzesModule } from './modules/quizzes/quizzes.module';
 import { CustomFeatureRequestsModule } from './modules/custom-feature-requests/custom-feature-requests.module';
@@ -30,6 +33,9 @@ import { CourseCategoriesModule } from './modules/course-categories/course-categ
     UploadsModule,
     LessonsModule,
     ClassesModule,
+    LessonMaterialsModule,
+    ProgressModule,
+    NotificationsModule,
     CoursesModule,
     QuizzesModule,
     TransactionsModule,
