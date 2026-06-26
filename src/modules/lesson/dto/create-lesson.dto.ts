@@ -12,11 +12,11 @@ import {
 export class CreateLessonDto {
   @ApiProperty({
     example: '60c72b2f9b1d8b001c8e4b5a',
-    description: 'ID của khóa học',
+    description: 'ID của lớp học',
   })
   @IsMongoId()
   @IsNotEmpty()
-  course_id: string;
+  class_id: string;
 
   @ApiProperty({
     example: 'Bài 1: Giới thiệu NestJS',

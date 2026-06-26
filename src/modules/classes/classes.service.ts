@@ -234,6 +234,10 @@ export class ClassesService {
     return classDoc;
   }
 
+  async findOne(classId: string): Promise<ClassDocument> {
+    return this.findClassDocument(classId);
+  }
+
   private async findClassDocument(classId: string): Promise<ClassDocument> {
     this.validateObjectId(classId);
 

@@ -19,29 +19,29 @@ export class QuizzesService {
     @InjectModel(Question.name) private readonly questionModel: Model<QuestionDocument>,
     @InjectModel(QuizSubmission.name) private readonly quizSubmissionModel: Model<QuizSubmissionDocument>,
     private readonly lessonsService: LessonsService,
-  ) {}
+  ) { }
 
   private async checkQuizOwnershipByQuizDoc(quiz: Quiz, authorId: string) {
     if (quiz.quiz_type === QuizType.COURSE_EXAM) {
       if (!quiz.course_id) throw new BadRequestException('course_id là bắt buộc');
-      await this.lessonsService.checkCourseOwnership(quiz.course_id.toString(), authorId);
+      await this.lessonsService.checkClassOwnership(quiz.course_id.toString(), authorId);
     } else {
       if (!quiz.lesson_id) throw new BadRequestException('lesson_id là bắt buộc');
       const lesson = await this.lessonsService.findOne(quiz.lesson_id.toString());
-      await this.lessonsService.checkCourseOwnership(lesson.course_id.toString(), authorId);
+      await this.lessonsService.checkClassOwnership(lesson.class_id.toString(), authorId);
     }
   }
 
   async createQuiz(createQuizDto: CreateQuizDto, authorId: string): Promise<Quiz> {
     if (createQuizDto.quiz_type === QuizType.COURSE_EXAM) {
       if (!createQuizDto.course_id) throw new BadRequestException('course_id là bắt buộc đối với COURSE_EXAM');
-      await this.lessonsService.checkCourseOwnership(createQuizDto.course_id, authorId);
+      await this.lessonsService.checkClassOwnership(createQuizDto.course_id, authorId);
     } else {
       if (!createQuizDto.lesson_id) throw new BadRequestException('lesson_id là bắt buộc đối với LESSON_QUIZ');
       const lesson = await this.lessonsService.findOne(createQuizDto.lesson_id);
-      await this.lessonsService.checkCourseOwnership(lesson.course_id.toString(), authorId);
+      await this.lessonsService.checkClassOwnership(lesson.class_id.toString(), authorId);
     }
-    
+
     const newQuiz = new this.quizModel(createQuizDto);
     return newQuiz.save();
   }
@@ -57,7 +57,7 @@ export class QuizzesService {
   async createQuestion(createQuestionDto: CreateQuestionDto, authorId: string): Promise<Question> {
     const quiz = await this.findQuizById(createQuestionDto.quiz_id);
     await this.checkQuizOwnershipByQuizDoc(quiz, authorId);
-    
+
     const newQuestion = new this.questionModel(createQuestionDto);
     return newQuestion.save();
   }
@@ -81,16 +81,16 @@ export class QuizzesService {
   }
 
   // --- QUESTION BANK & QUESTION CRUD ---
-  
+
   async getQuestionBankByCourse(courseId: string, authorId: string, paginationQuery: PaginationQueryDto): Promise<PaginatedResponse<Question>> {
-    await this.lessonsService.checkCourseOwnership(courseId, authorId);
-    
+    await this.lessonsService.checkClassOwnership(courseId, authorId);
+
     const courseQuizzes = await this.quizModel.find({ course_id: new Types.ObjectId(courseId) }).select('_id').exec();
-    const lessonIds = await this.lessonsService.findAllIdsByCourse(courseId);
+    const lessonIds = await this.lessonsService.findAllIdsByClass(courseId);
     const lessonQuizzes = await this.quizModel.find({ lesson_id: { $in: lessonIds.map(id => new Types.ObjectId(id)) } }).select('_id').exec();
-    
+
     const allQuizIds = [...courseQuizzes.map(q => q._id), ...lessonQuizzes.map(q => q._id)];
-    
+
     const skip = getPaginationSkip(paginationQuery);
     const filter = { quiz_id: { $in: allQuizIds } };
 
@@ -136,12 +136,12 @@ export class QuizzesService {
 
   async submitQuiz(quizId: string, answers: { question_id: string, selected_index: number }[], studentId: string): Promise<any> {
     if (!Types.ObjectId.isValid(quizId)) throw new BadRequestException('Id không hợp lệ');
-    
+
     const questions = await this.questionModel.find({ quiz_id: new Types.ObjectId(quizId) }).exec();
-    
+
     let score = 0;
     const total = questions.length;
-    
+
     const submissionAnswers = answers.map(ans => {
       const q = questions.find(q => q._id.toString() === ans.question_id);
       const is_correct = q ? (q.correct_option_index === ans.selected_index) : false;
@@ -195,10 +195,10 @@ export class QuizzesService {
 
   async getSubmissionDetails(submissionId: string, userId: string): Promise<any> {
     if (!Types.ObjectId.isValid(submissionId)) throw new BadRequestException('Id không hợp lệ');
-    
+
     const submission = await this.quizSubmissionModel.findById(submissionId).populate('quiz_id', 'title quiz_type').exec();
     if (!submission) throw new NotFoundException('Không tìm thấy lịch sử nộp bài');
-    
+
     // Only student or teacher check could be added here, currently returning for MVP
     return submission;
   }
