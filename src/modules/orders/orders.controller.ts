@@ -1,5 +1,5 @@
 import { Body, Controller, Get, Param, Patch, Post, Req, Res, UseGuards, Headers, UnauthorizedException, HttpCode } from '@nestjs/common';
-import { Response } from 'express';
+import type { Response } from 'express';
 import { ApiBearerAuth, ApiHeader, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
