@@ -6,12 +6,14 @@ import {
   TeacherSubscription,
   TeacherSubscriptionSchema,
 } from './schemas/teacher-subscription.schema';
+import { SubscriptionPackagesModule } from '../subscription-packages/subscription-packages.module';
 
 @Module({
   imports: [
     MongooseModule.forFeature([
       { name: TeacherSubscription.name, schema: TeacherSubscriptionSchema },
     ]),
+    SubscriptionPackagesModule,
   ],
   providers: [TeacherSubscriptionsService],
   controllers: [TeacherSubscriptionsController],
