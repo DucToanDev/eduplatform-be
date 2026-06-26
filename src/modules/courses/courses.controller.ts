@@ -6,10 +6,20 @@ import {
   Param,
   Patch,
   Post,
+  Query,
   Req,
   UseGuards,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBadRequestResponse,
+  ApiBearerAuth,
+  ApiCreatedResponse,
+  ApiForbiddenResponse,
+  ApiNotFoundResponse,
+  ApiOkResponse,
+  ApiOperation,
+  ApiTags,
+} from '@nestjs/swagger';
 import { Request } from 'express';
 import { Roles } from '../../common/decorators/roles.decorator';
 import { AuthenticatedUser, JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -18,6 +28,8 @@ import { UserRole } from '../users/schemas/users.schema';
 import { CoursesService } from './courses.service';
 import { CreateCourseDto } from './dto/create-course.dto';
 import { UpdateCourseDto } from './dto/update-course.dto';
+import { CourseQueryDto } from './dto/course-query.dto';
+import { UpdateCourseStatusDto } from './dto/update-course-status.dto';
 
 type AuthenticatedRequest = Request & {
   user: AuthenticatedUser;
@@ -28,126 +40,96 @@ type AuthenticatedRequest = Request & {
 export class CoursesController {
   constructor(private readonly coursesService: CoursesService) {}
 
+  //Teacher: Tạo khóa học mới
+  @Post()
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.TEACHER)
+  @ApiOperation({ summary: 'Giáo viên tạo khóa học mới' })
+  @ApiCreatedResponse({ description: 'Tạo khóa học thành công' })
+  @ApiBadRequestResponse({ description: 'Dữ liệu không hợp lệ' })
+  create(
+    @Body() dto: CreateCourseDto,
+    @Req() req: AuthenticatedRequest,
+  ) {
+    return this.coursesService.create(dto, req.user.id);
+  }
+
+  //Lấy khóa học của chính mình 
+  
+  @Get('me')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.TEACHER)
+  @ApiOperation({ summary: 'Giáo viên lấy danh sách khóa học của chính mình' })
+  @ApiOkResponse({ description: 'Thành công' })
+  findMyCourses(
+    @Query() query: CourseQueryDto,
+    @Req() req: AuthenticatedRequest,
+  ) {
+    return this.coursesService.findByAuthor(req.user.id, query);
+  }
+
+  // Public: Lấy danh sách khóa học 
   @Get()
   @ApiOperation({
-    summary: 'Lấy danh sách tất cả khóa học đã xuất bản (Public)',
+    summary: 'Lấy danh sách khóa học (filter theo category/status/marketplace/teacher)',
   })
-  findAllPublished() {
-    return this.coursesService.findAllPublished();
+  @ApiOkResponse({ description: 'Thành công' })
+  findAll(@Query() query: CourseQueryDto) {
+    return this.coursesService.findAll(query);
   }
 
-  @Get('categories')
-  @ApiOperation({ summary: 'Lấy danh sách danh mục khóa học' })
-  findCategories() {
-    return this.coursesService.findCategories();
-  }
-
-  @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.TEACHER)
-  @Post()
-  @ApiOperation({ summary: 'Tạo khóa học mới (dành cho Giáo viên)' })
-  create(
-    @Req() req: AuthenticatedRequest,
-    @Body() createCourseDto: CreateCourseDto,
-  ) {
-    return this.coursesService.create(req.user.id, createCourseDto);
-  }
-
-  @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.TEACHER)
-  @Get('teacher')
-  @ApiOperation({ summary: 'Lấy danh sách khóa học của giáo viên hiện tại' })
-  findTeacherCourses(@Req() req: AuthenticatedRequest) {
-    return this.coursesService.findTeacherCourses(req.user.id);
-  }
-
+  // Public: Lấy chi tiết khóa học 
   @Get(':id')
-  @ApiOperation({ summary: 'Lấy thông tin chi tiết một khóa học' })
+  @ApiOperation({ summary: 'Lấy chi tiết khóa học' })
+  @ApiOkResponse({ description: 'Thành công' })
+  @ApiNotFoundResponse({ description: 'Không tìm thấy khóa học' })
   findOne(@Param('id') id: string) {
     return this.coursesService.findOne(id);
   }
 
+  //Teacher: Cập nhật thông tin khóa học
+  @Patch(':id')
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.TEACHER)
-  @Patch(':id')
-  @ApiOperation({ summary: 'Cập nhật thông tin khóa học (dành cho Giáo viên)' })
+  @ApiOperation({ summary: 'Cập nhật thông tin khóa học (chỉ tác giả)' })
+  @ApiOkResponse({ description: 'Cập nhật thành công' })
+  @ApiNotFoundResponse({ description: 'Không tìm thấy khóa học' })
+  @ApiForbiddenResponse({ description: 'Không có quyền cập nhật' })
   update(
     @Param('id') id: string,
+    @Body() dto: UpdateCourseDto,
     @Req() req: AuthenticatedRequest,
-    @Body() updateCourseDto: UpdateCourseDto,
   ) {
-    return this.coursesService.update(id, req.user.id, updateCourseDto);
+    return this.coursesService.update(id, dto, req.user.id);
   }
 
+  //Admin/Manager: Duyệt/publish/reject khóa học
+  @Patch(':id/status')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.ADMIN, UserRole.MANAGER)
+  @ApiOperation({ summary: 'Admin/Manager duyệt, publish, reject hoặc ẩn khóa học' })
+  @ApiOkResponse({ description: 'Cập nhật trạng thái thành công' })
+  @ApiNotFoundResponse({ description: 'Không tìm thấy khóa học' })
+  updateStatus(
+    @Param('id') id: string,
+    @Body() dto: UpdateCourseStatusDto,
+  ) {
+    return this.coursesService.updateStatus(id, dto);
+  }
+
+  //Teacher: Xóa/ẩn khóa học
+  @Delete(':id')
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.TEACHER)
-  @Delete(':id')
-  @ApiOperation({
-    summary: 'Xóa/ẩn khóa học (soft delete, dành cho Giáo viên)',
-  })
+  @ApiOperation({ summary: 'Xóa/ẩn khóa học (soft delete, chỉ tác giả)' })
+  @ApiOkResponse({ description: 'Xóa thành công' })
+  @ApiNotFoundResponse({ description: 'Không tìm thấy khóa học' })
   remove(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
     return this.coursesService.remove(id, req.user.id);
-  }
-
-  @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.TEACHER)
-  @Post(':id/request-publish')
-  @ApiOperation({
-    summary: 'Yêu cầu duyệt xuất bản khóa học (dành cho Giáo viên)',
-  })
-  requestPublish(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
-    return this.coursesService.requestPublish(id, req.user.id);
-  }
-
-  @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.ADMIN)
-  @Get('admin/pending')
-  @ApiOperation({
-    summary: 'Lấy danh sách khóa học đang chờ duyệt (dành cho Admin)',
-  })
-  findAllPending() {
-    return this.coursesService.findAllPending();
-  }
-
-  @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.ADMIN)
-  @Patch('admin/:id/approve')
-  @ApiOperation({ summary: 'Duyệt khóa học (dành cho Admin)' })
-  approveCourse(@Param('id') id: string) {
-    return this.coursesService.approveCourse(id);
-  }
-
-  @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.ADMIN)
-  @Patch('admin/:id/publish')
-  @ApiOperation({ summary: 'Publish khóa học (dành cho Admin)' })
-  publishCourse(@Param('id') id: string) {
-    return this.coursesService.approveCourse(id);
-  }
-
-  @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.ADMIN)
-  @Patch('admin/:id/reject')
-  @ApiOperation({ summary: 'Từ chối khóa học (dành cho Admin)' })
-  rejectCourse(@Param('id') id: string) {
-    return this.coursesService.rejectCourse(id);
-  }
-
-  @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.ADMIN)
-  @Patch('admin/:id/hide')
-  @ApiOperation({ summary: 'Ẩn khóa học khỏi marketplace (dành cho Admin)' })
-  hideCourse(@Param('id') id: string) {
-    return this.coursesService.hideCourse(id);
   }
 }

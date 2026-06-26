@@ -19,4 +19,4 @@ import { LessonsModule } from '../lesson/lessons.module';
   controllers: [QuizzesController],
   providers: [QuizzesService],
 })
-export class QuizzesModule {}
+export class QuizzesModule { }

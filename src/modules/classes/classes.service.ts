@@ -103,7 +103,7 @@ export class ClassesService {
         teacher_id: new Types.ObjectId(teacherId),
       },
       { $set: updatePayload },
-      { new: true, runValidators: true },
+      { returnDocument: 'after', runValidators: true },
     );
 
     if (!updatedClass) {
@@ -232,6 +232,10 @@ export class ClassesService {
     }
 
     return classDoc;
+  }
+
+  async findOne(classId: string): Promise<ClassDocument> {
+    return this.findClassDocument(classId);
   }
 
   private async findClassDocument(classId: string): Promise<ClassDocument> {
