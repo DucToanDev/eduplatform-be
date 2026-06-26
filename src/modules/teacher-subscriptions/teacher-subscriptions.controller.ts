@@ -17,19 +17,19 @@ export class TeacherSubscriptionsController {
   @Roles(UserRole.TEACHER)
   @ApiOperation({ summary: 'Lấy gói thuê bao hiện tại của Giáo viên' })
   async getCurrentSubscription(@Req() req: any) {
-    return this.teacherSubsService.getCurrentSubscription(req.user.userId);
+    return this.teacherSubsService.getCurrentSubscription(req.user.id);
   }
 
   @Get('history')
   @Roles(UserRole.TEACHER)
   @ApiOperation({ summary: 'Lấy lịch sử mua gói thuê bao của Giáo viên' })
   async getHistory(@Req() req: any) {
-    return this.teacherSubsService.getSubscriptionHistory(req.user.userId);
+    return this.teacherSubsService.getSubscriptionHistory(req.user.id);
   }
   @Post('cancel')
   @Roles(UserRole.TEACHER)
   @ApiOperation({ summary: 'Hủy gói thuê bao đang hoạt động của Giáo viên' })
   async cancelSubscription(@Req() req: any) {
-    return this.teacherSubsService.cancelSubscription(req.user.userId);
+    return this.teacherSubsService.cancelSubscription(req.user.id);
   }
 }
