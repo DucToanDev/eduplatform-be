@@ -40,7 +40,7 @@ export class NotificationsController {
   @ApiOkResponse({ description: 'Thành công' })
   findMine(@Query() paginationQuery: PaginationQueryDto, @Req() req: any) {
     return this.notificationsService.findForUser(
-      req.user.userId,
+      req.user.id,
       paginationQuery,
     );
   }
@@ -49,7 +49,7 @@ export class NotificationsController {
   @ApiOperation({ summary: 'Đánh dấu tất cả thông báo đã đọc' })
   @ApiOkResponse({ description: 'Thành công' })
   markAllRead(@Req() req: any) {
-    return this.notificationsService.markAllAsRead(req.user.userId);
+    return this.notificationsService.markAllAsRead(req.user.id);
   }
 
   @Patch(':id/read')
@@ -57,7 +57,7 @@ export class NotificationsController {
   @ApiOkResponse({ description: 'Thành công' })
   @ApiNotFoundResponse({ description: 'Không tìm thấy thông báo' })
   markRead(@Param('id') id: string, @Req() req: any) {
-    return this.notificationsService.markAsRead(id, req.user.userId);
+    return this.notificationsService.markAsRead(id, req.user.id);
   }
 
   @Delete(':id')
@@ -65,7 +65,7 @@ export class NotificationsController {
   @ApiOkResponse({ description: 'Xóa thành công' })
   @ApiNotFoundResponse({ description: 'Không tìm thấy thông báo' })
   remove(@Param('id') id: string, @Req() req: any) {
-    return this.notificationsService.remove(id, req.user.userId);
+    return this.notificationsService.remove(id, req.user.id);
   }
 
   @Post()
