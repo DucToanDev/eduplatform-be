@@ -7,6 +7,7 @@ import { AuthService } from './auth.service';
 import { UsersModule } from '../users/users.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { RefreshToken, RefreshTokenSchema } from './schemas/refresh-tokens.schema';
+import { TeacherSubscriptionsModule } from '../teacher-subscriptions/teacher-subscriptions.module';
 
 @Global()
 @Module({
@@ -36,6 +37,7 @@ import { RefreshToken, RefreshTokenSchema } from './schemas/refresh-tokens.schem
       { name: RefreshToken.name, schema: RefreshTokenSchema },
     ]),
     UsersModule,
+    TeacherSubscriptionsModule,
   ],
   controllers: [AuthController],
   providers: [AuthService],
