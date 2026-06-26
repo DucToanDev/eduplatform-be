@@ -45,7 +45,7 @@ export class ProgressController {
   @ApiNotFoundResponse({ description: 'Không tìm thấy bài học' })
   upsert(@Body() createProgressDto: CreateProgressDto, @Req() req: any) {
     return this.progressService.upsertOwnProgress(
-      req.user.userId,
+      req.user.id,
       createProgressDto,
     );
   }
@@ -56,7 +56,7 @@ export class ProgressController {
   @ApiOperation({ summary: 'Lấy toàn bộ tiến độ của học sinh hiện tại' })
   @ApiOkResponse({ description: 'Thành công' })
   getOwnProgress(@Req() req: any) {
-    return this.progressService.getOwnProgress(req.user.userId);
+    return this.progressService.getOwnProgress(req.user.id);
   }
 
   @Get('me/course/:courseId')
@@ -68,7 +68,7 @@ export class ProgressController {
   @ApiOkResponse({ description: 'Thành công' })
   getOwnProgressByCourse(@Param('courseId') courseId: string, @Req() req: any) {
     return this.progressService.getOwnProgressByCourse(
-      req.user.userId,
+      req.user.id,
       courseId,
     );
   }
@@ -95,7 +95,7 @@ export class ProgressController {
   ) {
     return this.progressService.getClassProgressForTeacher(
       classId,
-      req.user.userId,
+      req.user.id,
       courseId,
     );
   }
@@ -116,7 +116,7 @@ export class ProgressController {
   ) {
     return this.progressService.updateCompletion(
       id,
-      req.user.userId,
+      req.user.id,
       updateCompletionDto.is_completed,
     );
   }
@@ -139,7 +139,7 @@ export class ProgressController {
   ) {
     return this.progressService.updateScore(
       id,
-      req.user.userId,
+      req.user.id,
       updateScoreDto.score,
     );
   }
