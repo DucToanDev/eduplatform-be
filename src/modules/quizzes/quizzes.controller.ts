@@ -13,7 +13,7 @@ import { UserRole } from '../users/schemas/users.schema';
 @ApiTags('Quizzes')
 @Controller('quizzes')
 export class QuizzesController {
-  constructor(private readonly quizzesService: QuizzesService) {}
+  constructor(private readonly quizzesService: QuizzesService) { }
 
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard, RolesGuard)
@@ -63,7 +63,7 @@ export class QuizzesController {
   @Post(':id/submit')
   @ApiOperation({ summary: 'Học sinh nộp bài Quiz và nhận điểm' })
   submitQuiz(
-    @Param('id') id: string, 
+    @Param('id') id: string,
     @Request() req,
     @Body() body: { answers: { question_id: string, selected_index: number }[] }
   ) {
@@ -78,8 +78,8 @@ export class QuizzesController {
   @Get('questions/bank/course/:courseId')
   @ApiOperation({ summary: 'Lấy ngân hàng câu hỏi của Khóa học (Giáo viên)' })
   getQuestionBankByCourse(
-    @Param('courseId') courseId: string, 
-    @Query() paginationQuery: PaginationQueryDto, 
+    @Param('courseId') courseId: string,
+    @Query() paginationQuery: PaginationQueryDto,
     @Request() req
   ) {
     return this.quizzesService.getQuestionBankByCourse(courseId, req.user.id, paginationQuery);

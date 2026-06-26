@@ -14,6 +14,7 @@ import { CustomFeatureRequestsModule } from './modules/custom-feature-requests/c
 import { ReportsModule } from './modules/reports/reports.module';
 import { TransactionsModule } from './modules/transactions/transactions.module';
 import { CourseCategoriesModule } from './modules/course-categories/course-categories.module';
+import { RewardsModule } from './modules/rewards/rewards.module';
 
 @Module({
   imports: [
@@ -36,6 +37,7 @@ import { CourseCategoriesModule } from './modules/course-categories/course-categ
     ReportsModule,
     CustomFeatureRequestsModule,
     CourseCategoriesModule,
+    RewardsModule,
   ],
   controllers: [AppController],
   providers: [],
