@@ -41,20 +41,20 @@ export class LessonsController {
     return this.lessonsService.findAll(paginationQuery);
   }
 
-  @Get('course/:courseId')
+  @Get('class/:classId')
   @ApiOperation({
-    summary: 'Lấy danh sách bài học theo ID khóa học có phân trang',
+    summary: 'Lấy danh sách bài học theo ID lớp học có phân trang',
   })
   @ApiParam({
-    name: 'courseId',
+    name: 'classId',
     type: 'string',
-    description: 'ID của khóa học',
+    description: 'ID của lớp học',
   })
-  findByCourse(
-    @Param('courseId') courseId: string,
+  findByClass(
+    @Param('classId') classId: string,
     @Query() paginationQuery: PaginationQueryDto,
   ) {
-    return this.lessonsService.findByCourse(courseId, paginationQuery);
+    return this.lessonsService.findByClass(classId, paginationQuery);
   }
 
   @Get(':id')

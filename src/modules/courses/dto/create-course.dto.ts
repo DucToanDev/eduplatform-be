@@ -5,46 +5,64 @@ import {
   IsNumber,
   IsOptional,
   IsString,
+  Min,
 } from 'class-validator';
+import { Type } from 'class-transformer';
 
 export class CreateCourseDto {
-  @ApiProperty({
-    example: 'Khóa học Tiếng Anh cơ bản',
-    description: 'Tên khóa học',
-  })
+  @ApiProperty({ example: 'Tiếng Anh cơ bản', description: 'Tên khóa học' })
+  @IsNotEmpty({ message: 'Tiêu đề khóa học không được để trống' })
   @IsString()
-  @IsNotEmpty()
   title: string;
 
   @ApiPropertyOptional({
-    example: 'Mô tả ngắn gọn về khóa học',
-    description: 'Mô tả chi tiết',
+    example: 'Khóa học dành cho người mới bắt đầu',
+    description: 'Mô tả khóa học',
   })
-  @IsString()
   @IsOptional()
+  @IsString()
   description?: string;
 
   @ApiPropertyOptional({
-    example: 'Tiếng Anh',
-    description: 'Danh mục khóa học',
+    example: 'https://example.com/thumbnail.jpg',
+    description: 'URL ảnh thumbnail',
   })
-  @IsString()
   @IsOptional()
+  @IsString()
+  thumbnail_url?: string;
+
+  @ApiPropertyOptional({
+    example: '665a1b2c3d4e5f6a7b8c9d0e',
+    description: 'ID danh mục khóa học',
+  })
+  @IsOptional()
+  @IsString()
   category?: string;
 
   @ApiPropertyOptional({
     example: false,
-    description: 'Có phải là khóa học demo/dùng thử hay không',
+    description: 'Khóa học demo (miễn phí xem trước)',
   })
-  @IsBoolean()
   @IsOptional()
+  @IsBoolean()
   is_demo?: boolean;
 
   @ApiPropertyOptional({
-    example: 100000,
-    description: 'Giá tiền của khóa học (0 nếu miễn phí)',
+    example: false,
+    description: 'Cho phép bán trên marketplace',
   })
-  @IsNumber()
   @IsOptional()
+  @IsBoolean()
+  is_marketplace?: boolean;
+
+  @ApiPropertyOptional({
+    example: 0,
+    description: 'Giá khóa học (VND)',
+    minimum: 0,
+  })
+  @IsOptional()
+  @IsNumber()
+  @Min(0, { message: 'Giá khóa học không được nhỏ hơn 0' })
+  @Type(() => Number)
   price?: number;
 }

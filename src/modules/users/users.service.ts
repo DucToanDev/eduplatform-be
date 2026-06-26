@@ -80,7 +80,7 @@ export class UsersService {
     @InjectModel(ClassEnrollment.name)
     private readonly classEnrollmentModel: Model<ClassEnrollmentDocument>,
     private readonly uploadsService: UploadsService,
-  ) {}
+  ) { }
 
   async updateAvatar(
     id: string,
