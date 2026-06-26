@@ -42,6 +42,7 @@ Table Subscription_Packages {
   max_students_per_class int
   can_sell_courses boolean
   is_active boolean
+  order_index int
   features json
 }
 
@@ -122,18 +123,30 @@ Table notification {
 }
 
 Table transactions {
-  id ObjectId [pk]
-  order_id ObjectId
-  transaction_type string // enum ['PAYMENT_TO_ADMIN', 'COMMISSION_FEE', 'TEACHER_INCOME']
-  amount decimal
-  recipient_id string
-  created_at date
+  _id ObjectId [pk]
+  order_id ObjectId [ref: > orders._id, note: "Liên kết với đơn hàng"]
+  payment_method String [note: "Phương thức thanh toán"]
+  transaction_id String [note: "Mã giao dịch từ đối tác"]
+  amount Number [note: "Số tiền giao dịch"]
+  status String [note: "Trạng thái giao dịch"]
+  created_at Date
+}
+
+Table error_logs {
+  _id ObjectId [pk]
+  statusCode Number [note: "Mã lỗi HTTP (VD: 500, 400)"]
+  method String [note: "Phương thức (GET, POST)"]
+  path String [note: "Đường dẫn gây lỗi"]
+  message String [note: "Nội dung lỗi"]
+  details Object [note: "Chi tiết lỗi (Stack trace)"]
+  user_id String [note: "ID của user nếu có"]
+  created_at Date [note: "TTL Index: Tự động xóa sau 7 ngày"]
 }
 
 Table orders {
-  id number [pk]
-  user_id number
-  reference_type string // enum ['SUBSCRIPTION', 'COURSE']
+  user_id ObjectId [ref: > users._id, note: "Người thực hiện (Học viên hoặc Giáo viên)"]
+  code String [note: "Mã đơn hàng ngắn (VD: EDU123456)"]
+  reference_type String [note: "Loại tham chiếu (SUBSCRIPTION, COURSE, ...)"]
   reference_id number
   item_name_snapshot json
   item_price_snapshot decimal

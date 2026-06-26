@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+﻿import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { AppController } from './app.controller';
@@ -17,7 +17,10 @@ import { CustomFeatureRequestsModule } from './modules/custom-feature-requests/c
 import { ReportsModule } from './modules/reports/reports.module';
 import { TransactionsModule } from './modules/transactions/transactions.module';
 import { CourseCategoriesModule } from './modules/course-categories/course-categories.module';
-import { RewardsModule } from './modules/rewards/rewards.module';
+import { SubscriptionPackagesModule } from './modules/subscription-packages/subscription-packages.module';
+import { OrdersModule } from './modules/orders/orders.module';
+import { TeacherSubscriptionsModule } from './modules/teacher-subscriptions/teacher-subscriptions.module';
+import { ErrorLogsModule } from './modules/error-logs/error-logs.module';
 
 @Module({
   imports: [
@@ -43,7 +46,10 @@ import { RewardsModule } from './modules/rewards/rewards.module';
     ReportsModule,
     CustomFeatureRequestsModule,
     CourseCategoriesModule,
-    RewardsModule,
+    SubscriptionPackagesModule,
+    OrdersModule,
+    TeacherSubscriptionsModule,
+    ErrorLogsModule,
   ],
   controllers: [AppController],
   providers: [],

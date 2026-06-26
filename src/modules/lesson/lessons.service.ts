@@ -89,7 +89,7 @@ export class LessonsService {
 
     const updatedLesson = await this.lessonModel
       .findOneAndUpdate({ _id: id, is_deleted: false }, updateLessonDto, {
-        new: true,
+        returnDocument: 'after',
         runValidators: true,
       })
       .exec();
@@ -112,7 +112,7 @@ export class LessonsService {
       .findOneAndUpdate(
         { _id: id, is_deleted: false },
         { is_deleted: true },
-        { new: true },
+        { returnDocument: 'after' },
       )
       .exec();
 

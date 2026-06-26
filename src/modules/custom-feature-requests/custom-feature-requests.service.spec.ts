@@ -67,7 +67,7 @@ describe('CustomFeatureRequestsService', () => {
     expect(requestModel.findByIdAndUpdate).toHaveBeenCalledWith(
       '6659f9f7c1e9e7f0c4f0d333',
       { status: CustomFeatureRequestStatus.RESOLVED },
-      { new: true, runValidators: true },
+      { returnDocument: 'after', runValidators: true },
     );
     expect(result).toEqual({ status: CustomFeatureRequestStatus.RESOLVED });
   });

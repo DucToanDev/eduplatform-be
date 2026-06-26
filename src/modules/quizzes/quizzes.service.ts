@@ -119,7 +119,7 @@ export class QuizzesService {
     const quiz = await this.findQuizById(question.quiz_id.toString());
     await this.checkQuizOwnershipByQuizDoc(quiz, authorId);
 
-    const updated = await this.questionModel.findByIdAndUpdate(id, updateQuestionDto, { new: true, runValidators: true }).exec();
+    const updated = await this.questionModel.findByIdAndUpdate(id, updateQuestionDto, { returnDocument: 'after', runValidators: true }).exec();
     if (!updated) throw new NotFoundException('Không tìm thấy câu hỏi');
     return updated;
   }
@@ -165,7 +165,7 @@ export class QuizzesService {
       submitted_at: new Date()
     };
 
-    const submission = await this.quizSubmissionModel.findOneAndUpdate(filter, update, { new: true, upsert: true }).exec();
+    const submission = await this.quizSubmissionModel.findOneAndUpdate(filter, update, { returnDocument: 'after', upsert: true }).exec();
 
     return {
       submission_id: submission._id,
