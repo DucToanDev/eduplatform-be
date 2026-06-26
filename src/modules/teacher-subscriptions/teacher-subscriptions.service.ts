@@ -2,13 +2,21 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { TeacherSubscription, TeacherSubscriptionDocument, TeacherSubscriptionStatus } from './schemas/teacher-subscription.schema';
+import { SubscriptionPackagesService } from '../subscription-packages/subscription-packages.service';
 
 @Injectable()
 export class TeacherSubscriptionsService {
   constructor(
     @InjectModel(TeacherSubscription.name)
     private teacherSubscriptionModel: Model<TeacherSubscriptionDocument>,
+    private readonly subscriptionPackagesService: SubscriptionPackagesService,
   ) {}
+
+  async activateBasicSubscription(teacherId: string): Promise<TeacherSubscriptionDocument | null> {
+    const basicPackage = await this.subscriptionPackagesService['subscriptionPackageModel'].findOne({ price: 0, is_active: true }).exec();
+    if (!basicPackage) return null;
+    return this.activateSubscription(teacherId, basicPackage._id.toString(), basicPackage.features);
+  }
 
   async activateSubscription(teacherId: string, packageId: string, featuresSnapshot: any): Promise<TeacherSubscriptionDocument> {
     const activeSub = await this.teacherSubscriptionModel.findOne({
@@ -65,7 +73,10 @@ export class TeacherSubscriptionsService {
     }
 
     activeSub.status = TeacherSubscriptionStatus.CANCELED;
-    return activeSub.save();
+    await activeSub.save();
+
+    const basicSub = await this.activateBasicSubscription(teacherId);
+    return basicSub || activeSub;
   }
 
   async getSubscriptionHistory(teacherId: string): Promise<TeacherSubscriptionDocument[]> {

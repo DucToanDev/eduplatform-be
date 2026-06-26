@@ -16,6 +16,7 @@ import { SignUpDto } from './dto/signup.dto';
 import { RefreshToken } from './schemas/refresh-tokens.schema';
 import { v4 as uuidv4 } from 'uuid';
 import * as crypto from 'crypto';
+import { TeacherSubscriptionsService } from '../teacher-subscriptions/teacher-subscriptions.service';
 
 function isDuplicateKeyError(error: unknown): boolean {
   return (
@@ -36,6 +37,7 @@ export class AuthService {
     @InjectModel(RefreshToken.name)
     private readonly refreshTokenModel: Model<RefreshToken>,
     private readonly jwtService: JwtService,
+    private readonly teacherSubsService: TeacherSubscriptionsService,
   ) {}
 
   private async buildAuthResponse(
@@ -117,6 +119,8 @@ export class AuthService {
       await this.teacherProfileModel.create({
         user_id: user._id,
       });
+
+      await this.teacherSubsService.activateBasicSubscription(user._id.toString());
 
       return await this.buildAuthResponse(
         'Đăng ký tài khoản giáo viên thành công',
