@@ -14,7 +14,9 @@ export const getCorsConfig = (): CorsOptions => {
         return;
       }
 
-      callback(new ForbiddenException(`Origin ${origin} is not allowed by CORS`));
+      callback(
+        new ForbiddenException(`Origin ${origin} is not allowed by CORS`),
+      );
     },
     credentials: true,
   };

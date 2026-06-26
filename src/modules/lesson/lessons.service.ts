@@ -28,12 +28,20 @@ export class LessonsService {
   async checkClassOwnership(classId: string, teacherId: string) {
     const classDoc = await this.classesService.findOne(classId);
     if (classDoc.teacher_id.toString() !== teacherId) {
-      throw new ForbiddenException('Bạn không có quyền thao tác trên bài học của lớp học này');
+      throw new ForbiddenException(
+        'Bạn không có quyền thao tác trên bài học của lớp học này',
+      );
     }
   }
 
-  async create(createLessonDto: CreateLessonDto, teacherId: string): Promise<Lesson> {
-    await this.checkClassOwnership(createLessonDto.class_id.toString(), teacherId);
+  async create(
+    createLessonDto: CreateLessonDto,
+    teacherId: string,
+  ): Promise<Lesson> {
+    await this.checkClassOwnership(
+      createLessonDto.class_id.toString(),
+      teacherId,
+    );
     const newLesson = new this.lessonModel(createLessonDto);
     return newLesson.save();
   }
@@ -65,7 +73,7 @@ export class LessonsService {
       .find({ class_id: new Types.ObjectId(classId), is_deleted: false })
       .select('_id')
       .exec();
-    return lessons.map(l => l._id.toString());
+    return lessons.map((l) => l._id.toString());
   }
 
   async findOne(id: string): Promise<Lesson> {
@@ -82,10 +90,17 @@ export class LessonsService {
     return lesson;
   }
 
-  async update(id: string, updateLessonDto: UpdateLessonDto, teacherId: string): Promise<Lesson> {
+  async update(
+    id: string,
+    updateLessonDto: UpdateLessonDto,
+    teacherId: string,
+  ): Promise<Lesson> {
     this.validateObjectId(id);
     const lessonToUpdate = await this.findOne(id);
-    await this.checkClassOwnership(lessonToUpdate.class_id.toString(), teacherId);
+    await this.checkClassOwnership(
+      lessonToUpdate.class_id.toString(),
+      teacherId,
+    );
 
     const updatedLesson = await this.lessonModel
       .findOneAndUpdate({ _id: id, is_deleted: false }, updateLessonDto, {
@@ -106,7 +121,10 @@ export class LessonsService {
   async remove(id: string, teacherId: string): Promise<void> {
     this.validateObjectId(id);
     const lessonToRemove = await this.findOne(id);
-    await this.checkClassOwnership(lessonToRemove.class_id.toString(), teacherId);
+    await this.checkClassOwnership(
+      lessonToRemove.class_id.toString(),
+      teacherId,
+    );
 
     const result = await this.lessonModel
       .findOneAndUpdate(

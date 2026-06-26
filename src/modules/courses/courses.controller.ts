@@ -48,15 +48,12 @@ export class CoursesController {
   @ApiOperation({ summary: 'Giáo viên tạo khóa học mới' })
   @ApiCreatedResponse({ description: 'Tạo khóa học thành công' })
   @ApiBadRequestResponse({ description: 'Dữ liệu không hợp lệ' })
-  create(
-    @Body() dto: CreateCourseDto,
-    @Req() req: AuthenticatedRequest,
-  ) {
+  create(@Body() dto: CreateCourseDto, @Req() req: AuthenticatedRequest) {
     return this.coursesService.create(dto, req.user.id);
   }
 
-  //Lấy khóa học của chính mình 
-  
+  //Lấy khóa học của chính mình
+
   @Get('me')
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard, RolesGuard)
@@ -70,17 +67,18 @@ export class CoursesController {
     return this.coursesService.findByAuthor(req.user.id, query);
   }
 
-  // Public: Lấy danh sách khóa học 
+  // Public: Lấy danh sách khóa học
   @Get()
   @ApiOperation({
-    summary: 'Lấy danh sách khóa học (filter theo category/status/marketplace/teacher)',
+    summary:
+      'Lấy danh sách khóa học (filter theo category/status/marketplace/teacher)',
   })
   @ApiOkResponse({ description: 'Thành công' })
   findAll(@Query() query: CourseQueryDto) {
     return this.coursesService.findAll(query);
   }
 
-  // Public: Lấy chi tiết khóa học 
+  // Public: Lấy chi tiết khóa học
   @Get(':id')
   @ApiOperation({ summary: 'Lấy chi tiết khóa học' })
   @ApiOkResponse({ description: 'Thành công' })
@@ -111,13 +109,12 @@ export class CoursesController {
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN, UserRole.MANAGER)
-  @ApiOperation({ summary: 'Admin/Manager duyệt, publish, reject hoặc ẩn khóa học' })
+  @ApiOperation({
+    summary: 'Admin/Manager duyệt, publish, reject hoặc ẩn khóa học',
+  })
   @ApiOkResponse({ description: 'Cập nhật trạng thái thành công' })
   @ApiNotFoundResponse({ description: 'Không tìm thấy khóa học' })
-  updateStatus(
-    @Param('id') id: string,
-    @Body() dto: UpdateCourseStatusDto,
-  ) {
+  updateStatus(@Param('id') id: string, @Body() dto: UpdateCourseStatusDto) {
     return this.coursesService.updateStatus(id, dto);
   }
 

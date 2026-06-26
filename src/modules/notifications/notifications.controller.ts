@@ -39,10 +39,7 @@ export class NotificationsController {
   @ApiOperation({ summary: 'Lấy thông báo của user hiện tại (có phân trang)' })
   @ApiOkResponse({ description: 'Thành công' })
   findMine(@Query() paginationQuery: PaginationQueryDto, @Req() req: any) {
-    return this.notificationsService.findForUser(
-      req.user.id,
-      paginationQuery,
-    );
+    return this.notificationsService.findForUser(req.user.id, paginationQuery);
   }
 
   @Patch('read-all')

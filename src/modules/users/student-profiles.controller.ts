@@ -88,7 +88,9 @@ export class StudentProfilesController {
   })
   @ApiBadRequestResponse({ description: 'teacher id không hợp lệ' })
   @ApiNotFoundResponse({ description: 'Không tìm thấy hồ sơ học sinh' })
-  getStudentsByTeacher(@Param('id') teacherId: string): Promise<StudentListResponseDto[]> {
+  getStudentsByTeacher(
+    @Param('id') teacherId: string,
+  ): Promise<StudentListResponseDto[]> {
     return this.usersService.getStudentsByTeacherId(teacherId);
   }
 
@@ -100,7 +102,9 @@ export class StudentProfilesController {
   })
   @ApiBadRequestResponse({ description: 'class id không hợp lệ' })
   @ApiNotFoundResponse({ description: 'Không tìm thấy lớp học' })
-  getStudentsByClass(@Param('classId') classId: string): Promise<StudentListResponseDto[]> {
+  getStudentsByClass(
+    @Param('classId') classId: string,
+  ): Promise<StudentListResponseDto[]> {
     return this.usersService.getStudentsByClassId(classId);
   }
 

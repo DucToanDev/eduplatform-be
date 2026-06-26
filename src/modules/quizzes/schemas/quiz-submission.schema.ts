@@ -13,11 +13,27 @@ export class QuizSubmission {
   @Prop({ type: Types.ObjectId, ref: Users.name, required: true })
   student_id: Types.ObjectId;
 
-  @Prop({ type: [{ question_id: String, selected_index: Number, is_correct: Boolean, correct_option_index: Number }], required: true })
-  answers: { question_id: string; selected_index: number; is_correct: boolean; correct_option_index: number }[];
+  @Prop({
+    type: [
+      {
+        question_id: String,
+        selected_index: Number,
+        is_correct: Boolean,
+        correct_option_index: Number,
+      },
+    ],
+    required: true,
+  })
+  answers: {
+    question_id: string;
+    selected_index: number;
+    is_correct: boolean;
+    correct_option_index: number;
+  }[];
 
   @Prop({ required: true, type: Number })
   score: number;
 }
 
-export const QuizSubmissionSchema = SchemaFactory.createForClass(QuizSubmission);
+export const QuizSubmissionSchema =
+  SchemaFactory.createForClass(QuizSubmission);

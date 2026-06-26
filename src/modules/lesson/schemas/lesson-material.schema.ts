@@ -28,4 +28,5 @@ export class LessonMaterial {
   order_index: number;
 }
 
-export const LessonMaterialSchema = SchemaFactory.createForClass(LessonMaterial);
+export const LessonMaterialSchema =
+  SchemaFactory.createForClass(LessonMaterial);

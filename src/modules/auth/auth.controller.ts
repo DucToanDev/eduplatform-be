@@ -1,5 +1,12 @@
 import { AuthService } from './auth.service';
-import { Body, Controller, Post, Res, Req, UnauthorizedException } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Post,
+  Res,
+  Req,
+  UnauthorizedException,
+} from '@nestjs/common';
 import type { Response, Request, CookieOptions } from 'express';
 import {
   ApiBadRequestResponse,
@@ -32,7 +39,10 @@ export class AuthController {
     };
     if (accessToken) {
       // Access token expiration: 30 minutes
-      res.cookie('access_token', accessToken, { ...cookieOptions, maxAge: 30 * 60 * 1000 });
+      res.cookie('access_token', accessToken, {
+        ...cookieOptions,
+        maxAge: 30 * 60 * 1000,
+      });
     }
     if (refreshToken) {
       // Refresh token expiration: 7 days
@@ -48,7 +58,10 @@ export class AuthController {
   })
   @ApiBadRequestResponse({ description: 'Dữ liệu gửi lên không hợp lệ' })
   @ApiConflictResponse({ description: 'Email đã được sử dụng' })
-  async signUp(@Body() signUpDto: SignUpDto, @Res({ passthrough: true }) res: Response): Promise<AuthTokenResponseDto> {
+  async signUp(
+    @Body() signUpDto: SignUpDto,
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<AuthTokenResponseDto> {
     const { response, refreshToken } = await this.authService.signUp(signUpDto);
     this.setCookies(res, response.data.accessToken, refreshToken);
     return response;
@@ -63,7 +76,10 @@ export class AuthController {
   @ApiBadRequestResponse({ description: 'Dữ liệu gửi lên không hợp lệ' })
   @ApiForbiddenResponse({ description: 'Tài khoản đã bị khóa' })
   @ApiUnauthorizedResponse({ description: 'Email hoặc mật khẩu không đúng !' })
-  async login(@Body() loginDto: LoginDto, @Res({ passthrough: true }) res: Response): Promise<AuthTokenResponseDto> {
+  async login(
+    @Body() loginDto: LoginDto,
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<AuthTokenResponseDto> {
     const { response, refreshToken } = await this.authService.login(loginDto);
     this.setCookies(res, response.data.accessToken, refreshToken);
     return response;
@@ -76,7 +92,9 @@ export class AuthController {
     type: AuthTokenResponseDto,
   })
   @ApiBadRequestResponse({ description: 'Dữ liệu gửi lên không hợp lệ' })
-  @ApiForbiddenResponse({ description: 'Tài khoản đã bị khóa hoặc không đủ quyền' })
+  @ApiForbiddenResponse({
+    description: 'Tài khoản đã bị khóa hoặc không đủ quyền',
+  })
   @ApiUnauthorizedResponse({ description: 'Email hoặc mật khẩu không đúng !' })
   @ApiBody({
     schema: {
@@ -87,8 +105,12 @@ export class AuthController {
       },
     },
   })
-  async adminLogin(@Body() loginDto: LoginDto, @Res({ passthrough: true }) res: Response): Promise<AuthTokenResponseDto> {
-    const { response, refreshToken } = await this.authService.adminLogin(loginDto);
+  async adminLogin(
+    @Body() loginDto: LoginDto,
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<AuthTokenResponseDto> {
+    const { response, refreshToken } =
+      await this.authService.adminLogin(loginDto);
     this.setCookies(res, response.data.accessToken, refreshToken);
     return response;
   }
@@ -106,23 +128,37 @@ export class AuthController {
   })
   async studentLogin(
     @Body() loginDto: StudentLoginDto,
-    @Res({ passthrough: true }) res: Response
+    @Res({ passthrough: true }) res: Response,
   ): Promise<AuthTokenResponseDto> {
-    const { response, refreshToken } = await this.authService.studentLogin(loginDto);
+    const { response, refreshToken } =
+      await this.authService.studentLogin(loginDto);
     this.setCookies(res, response.data.accessToken, refreshToken);
     return response;
   }
 
   @Post('/refresh')
-  @ApiOperation({ summary: 'Làm mới Access Token bằng Refresh Token (Lấy từ Cookie)' })
-  @ApiOkResponse({ description: 'Cấp mới token thành công', type: AuthTokenResponseDto })
-  @ApiUnauthorizedResponse({ description: 'Refresh Token không hợp lệ hoặc đã hết hạn' })
-  async refresh(@Req() req: Request, @Res({ passthrough: true }) res: Response): Promise<AuthTokenResponseDto> {
+  @ApiOperation({
+    summary: 'Làm mới Access Token bằng Refresh Token (Lấy từ Cookie)',
+  })
+  @ApiOkResponse({
+    description: 'Cấp mới token thành công',
+    type: AuthTokenResponseDto,
+  })
+  @ApiUnauthorizedResponse({
+    description: 'Refresh Token không hợp lệ hoặc đã hết hạn',
+  })
+  async refresh(
+    @Req() req: Request,
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<AuthTokenResponseDto> {
     const oldRefreshToken = req.cookies?.refresh_token;
     if (!oldRefreshToken) {
-      throw new UnauthorizedException('Không tìm thấy Refresh Token trong cookie. Vui lòng đăng nhập lại.');
+      throw new UnauthorizedException(
+        'Không tìm thấy Refresh Token trong cookie. Vui lòng đăng nhập lại.',
+      );
     }
-    const { response, refreshToken } = await this.authService.refreshTokens(oldRefreshToken);
+    const { response, refreshToken } =
+      await this.authService.refreshTokens(oldRefreshToken);
     this.setCookies(res, response.data.accessToken, refreshToken);
     return response;
   }

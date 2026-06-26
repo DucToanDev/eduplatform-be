@@ -1,7 +1,10 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { SubscriptionPackage, SubscriptionPackageDocument } from './schemas/subscription-package.schema';
+import {
+  SubscriptionPackage,
+  SubscriptionPackageDocument,
+} from './schemas/subscription-package.schema';
 import { CreateSubscriptionPackageDto } from './dto/create-subscription-package.dto';
 import { UpdateSubscriptionPackageDto } from './dto/update-subscription-package.dto';
 
@@ -19,12 +22,17 @@ export class SubscriptionPackagesService {
       .exec();
   }
 
-  async createPackage(createDto: CreateSubscriptionPackageDto): Promise<SubscriptionPackage> {
+  async createPackage(
+    createDto: CreateSubscriptionPackageDto,
+  ): Promise<SubscriptionPackage> {
     const createdPackage = new this.subscriptionPackageModel(createDto);
     return createdPackage.save();
   }
 
-  async updatePackage(id: string, updateDto: UpdateSubscriptionPackageDto): Promise<SubscriptionPackage> {
+  async updatePackage(
+    id: string,
+    updateDto: UpdateSubscriptionPackageDto,
+  ): Promise<SubscriptionPackage> {
     const updatedPackage = await this.subscriptionPackageModel
       .findByIdAndUpdate(id, updateDto, { returnDocument: 'after' })
       .exec();

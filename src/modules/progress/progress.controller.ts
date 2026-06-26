@@ -67,10 +67,7 @@ export class ProgressController {
   })
   @ApiOkResponse({ description: 'Thành công' })
   getOwnProgressByCourse(@Param('courseId') courseId: string, @Req() req: any) {
-    return this.progressService.getOwnProgressByCourse(
-      req.user.id,
-      courseId,
-    );
+    return this.progressService.getOwnProgressByCourse(req.user.id, courseId);
   }
 
   @Get('teacher/class/:classId')
