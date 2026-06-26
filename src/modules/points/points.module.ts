@@ -6,12 +6,14 @@ import {
   RewardBalance,
   RewardBalanceSchema,
 } from './schemas/reward-balance.schema';
+import { ClassesModule } from '../classes/classes.module';
 
 @Module({
   imports: [
     MongooseModule.forFeature([
       { name: RewardBalance.name, schema: RewardBalanceSchema },
     ]),
+    ClassesModule,
   ],
   controllers: [PointsController],
   providers: [PointsService],
