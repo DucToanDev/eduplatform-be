@@ -1,3 +1,4 @@
+import { ForbiddenException } from '@nestjs/common';
 import { CorsOptions } from '@nestjs/common/interfaces/external/cors-options.interface';
 
 export const getCorsConfig = (): CorsOptions => {
@@ -13,7 +14,7 @@ export const getCorsConfig = (): CorsOptions => {
         return;
       }
 
-      callback(new Error(`Origin ${origin} is not allowed by CORS`));
+      callback(new ForbiddenException(`Origin ${origin} is not allowed by CORS`));
     },
     credentials: true,
   };
