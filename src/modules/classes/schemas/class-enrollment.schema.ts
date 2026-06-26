@@ -16,4 +16,6 @@ export class ClassEnrollment {
 }
 
 export type ClassEnrollmentDocument = HydratedDocument<ClassEnrollment>;
-export const ClassEnrollmentSchema = SchemaFactory.createForClass(ClassEnrollment);
+export const ClassEnrollmentSchema =
+  SchemaFactory.createForClass(ClassEnrollment);
+ClassEnrollmentSchema.index({ student_id: 1, class_id: 1 }, { unique: true });

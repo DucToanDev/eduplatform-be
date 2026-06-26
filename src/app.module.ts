@@ -1,9 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { APP_INTERCEPTOR } from '@nestjs/core';
 import { MongooseModule } from '@nestjs/mongoose';
 import { AppController } from './app.controller';
-import { TokenRefreshInterceptor } from './modules/auth/interceptors/token-refresh.interceptor';
 import { getMongooseConfig } from './config/database.config';
 import { AuthModule } from './modules/auth/auth.module';
 import { UploadsModule } from './modules/uploads/uploads.module';
@@ -13,6 +11,12 @@ import { ClassesModule } from './modules/classes/classes.module';
 import { LessonMaterialsModule } from './modules/lesson-materials/lesson-materials.module';
 import { ProgressModule } from './modules/progress/progress.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
+import { CoursesModule } from './modules/courses/courses.module';
+import { QuizzesModule } from './modules/quizzes/quizzes.module';
+import { CustomFeatureRequestsModule } from './modules/custom-feature-requests/custom-feature-requests.module';
+import { ReportsModule } from './modules/reports/reports.module';
+import { TransactionsModule } from './modules/transactions/transactions.module';
+import { CourseCategoriesModule } from './modules/course-categories/course-categories.module';
 
 @Module({
   imports: [
@@ -32,13 +36,14 @@ import { NotificationsModule } from './modules/notifications/notifications.modul
     LessonMaterialsModule,
     ProgressModule,
     NotificationsModule,
+    CoursesModule,
+    QuizzesModule,
+    TransactionsModule,
+    ReportsModule,
+    CustomFeatureRequestsModule,
+    CourseCategoriesModule,
   ],
   controllers: [AppController],
-  providers: [
-    {
-      provide: APP_INTERCEPTOR,
-      useClass: TokenRefreshInterceptor,
-    },
-  ],
+  providers: [],
 })
 export class AppModule {}

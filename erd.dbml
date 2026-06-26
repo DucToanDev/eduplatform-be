@@ -14,6 +14,7 @@ Table teacher_profile {
   user_id ObjectId [pk, ref: - users.id]
   bio string
   expertise string
+  experience_years number
 }
 
 Table student_profile {
@@ -52,6 +53,7 @@ Table Courses {
   is_demo boolean
   is_marketplace boolean
   price decimal
+  status string // enum ['DRAFT', 'PENDING_APPROVAL', 'PUBLISHED', 'REJECTED']
 }
 
 Table Lesson_Materials {
@@ -158,4 +160,38 @@ Table Withdrawal_Request {
   wallet string
   balance decimal
   total_earned decimal
+}
+
+Table Quizzes {
+  id ObjectId [pk]
+  course_id ObjectId [ref: > Courses.id]
+  lesson_id ObjectId [ref: > Lessons.id]
+  quiz_type string // enum ['LESSON_QUIZ', 'COURSE_EXAM']
+  title string
+  order_index number
+}
+
+Table Questions {
+  id ObjectId [pk]
+  quiz_id ObjectId [ref: > Quizzes.id]
+  content string
+  options json // e.g. ["A", "B", "C", "D"]
+  correct_option_index int
+}
+
+Table RefreshTokens {
+  id ObjectId [pk]
+  user_id ObjectId [ref: > users.id]
+  token string
+  expires_at timestamp
+  created_at timestamp
+}
+
+Table QuizSubmissions {
+  id ObjectId [pk]
+  quiz_id ObjectId [ref: > Quizzes.id]
+  student_id ObjectId [ref: > users.id]
+  answers json // array of { question_id, selected_index, is_correct, correct_option_index }
+  score number // score percentage or correct count
+  submitted_at timestamp
 }

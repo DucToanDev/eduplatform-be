@@ -50,7 +50,7 @@ export class StudentProfilesController {
   })
   @ApiBearerAuth()
   createStudent(@Body() dto: CreateStudentDto, @Req() req: any) {
-    const teacherId = req.user.userId;
+    const teacherId = req.user.id;
     return this.usersService.createStudent(dto, teacherId);
   }
 

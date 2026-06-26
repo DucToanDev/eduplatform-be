@@ -20,6 +20,9 @@ export class Lesson {
   @Prop({ default: 0 })
   order_index: number;
 
+  @Prop()
+  unlock_condition: string;
+
   @Prop({ default: false })
   is_deleted: boolean;
 }
