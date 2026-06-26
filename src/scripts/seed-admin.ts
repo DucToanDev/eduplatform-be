@@ -1,6 +1,10 @@
 import * as mongoose from 'mongoose';
 import * as bcrypt from 'bcryptjs';
 import * as dotenv from 'dotenv';
+import { AppModule } from '../app.module';
+import { getModelToken } from '@nestjs/mongoose';
+import { UserRole } from '../modules/users/schemas/users.schema';
+import { UsersDocument } from '../modules/users/schemas/users.schema';
 
 // Load environment variables from .env file
 dotenv.config();

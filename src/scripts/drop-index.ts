@@ -1,8 +1,9 @@
 import { NestFactory } from '@nestjs/core';
-import { AppModule } from './src/app.module';
+import { AppModule } from '../app.module';
 import { getModelToken } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { UsersDocument } from './src/modules/users/schemas/users.schema';
+import { UserRole } from '../modules/users/schemas/users.schema';
+import { UsersDocument } from '../modules/users/schemas/users.schema';
 
 async function bootstrap() {
   const app = await NestFactory.createApplicationContext(AppModule);
