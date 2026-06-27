@@ -21,8 +21,9 @@ import { SubscriptionPackagesModule } from './modules/subscription-packages/subs
 import { OrdersModule } from './modules/orders/orders.module';
 import { TeacherSubscriptionsModule } from './modules/teacher-subscriptions/teacher-subscriptions.module';
 import { ErrorLogsModule } from './modules/error-logs/error-logs.module';
-import { RewardsModule } from './modules/rewards/rewards.module';
-
+import { StoreModule } from './modules/store/store.module';
+import { PointsModule } from './modules/points/points.module';
+import { LearningRewardsModule } from './modules/learning-rewards/learning-rewards.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -51,7 +52,9 @@ import { RewardsModule } from './modules/rewards/rewards.module';
     OrdersModule,
     TeacherSubscriptionsModule,
     ErrorLogsModule,
-    RewardsModule,
+    StoreModule,
+    PointsModule,
+    LearningRewardsModule,
   ],
   controllers: [AppController],
   providers: [],

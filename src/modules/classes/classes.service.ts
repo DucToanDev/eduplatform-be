@@ -284,10 +284,35 @@ export class ClassesService {
     });
 
     if (!student) {
-      throw new NotFoundException('Không tìm thấy học sinh');
+      throw new NotFoundException(
+        `Không tìm thấy học sinh với ID #${studentId}`,
+      );
     }
 
     return student;
+  }
+
+  async checkStudentInTeacherClass(
+    studentId: string,
+    teacherId: string,
+  ): Promise<boolean> {
+    this.validateObjectId(studentId);
+    this.validateObjectId(teacherId);
+
+    const enrollments = (await this.classEnrollmentModel
+      .find({ student_id: new Types.ObjectId(studentId) })
+      .populate('class_id')
+      .exec()) as unknown as EnrollmentWithClass[];
+
+    for (const enrollment of enrollments) {
+      if (
+        enrollment.class_id &&
+        enrollment.class_id.teacher_id.toString() === teacherId
+      ) {
+        return true;
+      }
+    }
+    return false;
   }
 
   private async validateCourseOwnership(
