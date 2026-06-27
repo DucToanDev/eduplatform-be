@@ -1,16 +1,7 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { RewardsController } from './rewards.controller';
-import { RewardsService } from './rewards.service';
-import { StoreItem, StoreItemSchema } from './schemas/store-item.schema';
-import {
-  StudentInventory,
-  StudentInventorySchema,
-} from './schemas/student-inventory.schema';
-import {
-  RewardBalance,
-  RewardBalanceSchema,
-} from './schemas/reward-balance.schema';
+import { LearningRewardsService } from './learning-rewards.service';
+import { LearningRewardsController } from './learning-rewards.controller';
 import {
   QuestionRewardConfig,
   QuestionRewardConfigSchema,
@@ -27,21 +18,20 @@ import {
   QuizSubmission,
   QuizSubmissionSchema,
 } from '../quizzes/schemas/quiz-submission.schema';
+import { PointsModule } from '../points/points.module';
 
 @Module({
   imports: [
     MongooseModule.forFeature([
-      { name: StoreItem.name, schema: StoreItemSchema },
-      { name: StudentInventory.name, schema: StudentInventorySchema },
-      { name: RewardBalance.name, schema: RewardBalanceSchema },
       { name: QuestionRewardConfig.name, schema: QuestionRewardConfigSchema },
       { name: LessonRewardConfig.name, schema: LessonRewardConfigSchema },
       { name: RewardClaimHistory.name, schema: RewardClaimHistorySchema },
       { name: QuizSubmission.name, schema: QuizSubmissionSchema },
     ]),
+    PointsModule,
   ],
-  controllers: [RewardsController],
-  providers: [RewardsService],
-  exports: [RewardsService],
+  controllers: [LearningRewardsController],
+  providers: [LearningRewardsService],
+  exports: [LearningRewardsService],
 })
-export class RewardsModule {}
+export class LearningRewardsModule {}
