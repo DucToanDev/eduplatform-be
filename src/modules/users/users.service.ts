@@ -424,10 +424,15 @@ export class UsersService {
         role: UserRole.STUDENT,
       });
 
+      const usernamePrefix = username.substring(0, 2).toUpperCase();
+      const randomDigits = Math.floor(1000 + Math.random() * 9000);
+      const parentAccessCode = `PH${usernamePrefix}${randomDigits}`;
+
       await this.studentProfileModel.create({
         user_id: user._id,
         grade_level: dto.grade_level,
         teacher_id: new Types.ObjectId(teacherId),
+        parent_access_codes: parentAccessCode,
       });
 
       if (dto.class_ids && dto.class_ids.length > 0) {

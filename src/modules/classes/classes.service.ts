@@ -148,7 +148,12 @@ export class ClassesService {
     teacherId: string,
   ) {
     const classDoc = await this.findOwnedClass(classId, teacherId);
-    const student = await this.findStudent(dto.student_id);
+    
+    if (!dto.student_id && !dto.email) {
+      throw new BadRequestException('Vui lòng cung cấp ID học sinh hoặc email');
+    }
+
+    const student = await this.findStudent(dto.student_id, dto.email);
 
     try {
       const enrollment = await this.classEnrollmentModel.create({
@@ -275,17 +280,25 @@ export class ClassesService {
     throw new ForbiddenException('Bạn không có quyền xem lớp học này');
   }
 
-  private async findStudent(studentId: string): Promise<UsersDocument> {
-    this.validateObjectId(studentId);
-
-    const student = await this.userModel.findOne({
-      _id: new Types.ObjectId(studentId),
-      role: UserRole.STUDENT,
-    });
+  private async findStudent(studentId?: string, email?: string): Promise<UsersDocument> {
+    let student;
+    
+    if (studentId) {
+      this.validateObjectId(studentId);
+      student = await this.userModel.findOne({
+        _id: new Types.ObjectId(studentId),
+        role: UserRole.STUDENT,
+      });
+    } else if (email) {
+      student = await this.userModel.findOne({
+        email: email,
+        role: UserRole.STUDENT,
+      });
+    }
 
     if (!student) {
       throw new NotFoundException(
-        `Không tìm thấy học sinh với ID #${studentId}`,
+        `Không tìm thấy học sinh với thông tin đã cung cấp`,
       );
     }
 
