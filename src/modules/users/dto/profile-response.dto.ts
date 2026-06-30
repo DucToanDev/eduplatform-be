@@ -61,9 +61,6 @@ export class StudentProfileDataDto {
 
   @ApiProperty({ example: 100 })
   readonly points: number;
-
-  @ApiPropertyOptional({ example: 'PARENT-ABC-123' })
-  readonly parent_access_codes?: string;
 }
 
 export class StudentProfileResponseDto {
