@@ -39,7 +39,12 @@ import {
 import { UpdateCurrentUserDto } from './dto/update-current-user.dto';
 import { UpdateUserRoleDto } from './dto/update-user-role.dto';
 import { UpdateUserStatusDto } from './dto/update-user-status.dto';
+import { ParentOverviewRequestDto } from './dto/parent-overview.dto';
 import { UserQueryDto } from './dto/user-query.dto';
+import {
+  StudentProgress,
+  StudentProgressDocument,
+} from '../progress/schemas/student-progress.schema';
 
 const AVATAR_UPLOAD_FOLDER = 'edu-platform/avatars';
 
@@ -79,6 +84,8 @@ export class UsersService {
     private readonly teacherProfileModel: Model<TeacherProfileDocument>,
     @InjectModel(ClassEnrollment.name)
     private readonly classEnrollmentModel: Model<ClassEnrollmentDocument>,
+    @InjectModel(StudentProgress.name)
+    private readonly studentProgressModel: Model<StudentProgressDocument>,
     private readonly uploadsService: UploadsService,
   ) {}
 
@@ -524,6 +531,79 @@ export class UsersService {
       phone: user.phone,
       role: user.role,
       status: user.status,
+    };
+  }
+
+  async getParentOverview(studentId: string, dto: ParentOverviewRequestDto) {
+    this.validateObjectId(studentId);
+
+    const profile = await this.studentProfileModel.findOne({ user_id: new Types.ObjectId(studentId) });
+    if (!profile) {
+      throw new NotFoundException('Không tìm thấy hồ sơ học sinh');
+    }
+
+    if (profile.parent_access_codes !== dto.parent_access_code) {
+      throw new ForbiddenException('Mã truy cập không hợp lệ');
+    }
+
+    const studentUser = await this.findProfileUser(new Types.ObjectId(studentId));
+
+    // Lấy danh sách lớp học
+    const enrollments = await this.classEnrollmentModel
+      .find({ student_id: new Types.ObjectId(studentId) })
+      .populate({
+        path: 'class_id',
+        select: 'class_name teacher_id',
+        populate: {
+          path: 'teacher_id',
+          model: 'Users',
+          select: 'fullname'
+        }
+      });
+
+    const enrolled_classes = enrollments.map((enrollment: any) => ({
+      class_id: enrollment.class_id?._id,
+      class_name: enrollment.class_id?.class_name,
+      teacher_name: enrollment.class_id?.teacher_id?.fullname,
+    }));
+
+    // Lấy tiến độ học tập
+    const progressRecords = await this.studentProgressModel
+      .find({ student_id: new Types.ObjectId(studentId) })
+      .populate('lesson_id', 'title')
+      .sort({ updatedAt: -1 })
+      .lean()
+      .exec();
+
+    const totalRecords = progressRecords.length;
+    const completedRecords = progressRecords.filter(p => p.is_completed).length;
+    const completion_rate = totalRecords > 0 ? Math.round((completedRecords / totalRecords) * 100) : 0;
+
+    const scoredRecords = progressRecords.filter(p => p.score !== undefined && p.score !== null);
+    const average_score = scoredRecords.length > 0
+      ? Number((scoredRecords.reduce((sum, p) => sum + p.score!, 0) / scoredRecords.length).toFixed(1))
+      : null;
+
+    const recent_lessons = progressRecords.slice(0, 3).map((p: any) => ({
+      lesson_name: p.lesson_id?.title || 'Bài học không xác định',
+      status: p.is_completed ? 'Hoàn thành' : 'Chưa hoàn thành'
+    }));
+
+    return {
+      success: true,
+      data: {
+        student: {
+          id: studentUser._id,
+          fullname: studentUser.fullname,
+          avatar_url: studentUser.avatar_url,
+        },
+        enrolled_classes,
+        progress_summary: {
+          completion_rate,
+          average_score,
+        },
+        recent_lessons,
+      }
     };
   }
 }
