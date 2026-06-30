@@ -7,6 +7,7 @@ import {
   Patch,
   UseGuards,
   Req,
+  Query,
 } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
@@ -143,10 +144,10 @@ export class StudentProfilesController {
   @Roles(UserRole.STUDENT)
   @ApiOperation({ summary: 'Tổng quan học tập dành cho Phụ huynh' })
   @ApiBearerAuth()
-  @Post('parent-overview')
+  @Get('parent-overview')
   async getParentOverview(
     @Req() req,
-    @Body() dto: ParentOverviewRequestDto,
+    @Query() dto: ParentOverviewRequestDto,
   ) {
     return this.usersService.getParentOverview(req.user.id, dto);
   }
