@@ -19,6 +19,11 @@ import {
 } from './schemas/teacher-profile.schema';
 import { Users, UsersSchema } from './schemas/users.schema';
 import { ClassesModule } from '../classes/classes.module';
+import {
+  StudentProgress,
+  StudentProgressSchema,
+} from '../progress/schemas/student-progress.schema';
+import { Lesson, LessonSchema } from '../lesson/schemas/lesson.schema';
 
 @Module({
   imports: [
@@ -39,6 +44,8 @@ import { ClassesModule } from '../classes/classes.module';
       { name: Users.name, schema: UsersSchema },
       { name: StudentProfile.name, schema: StudentProfileSchema },
       { name: TeacherProfile.name, schema: TeacherProfileSchema },
+      { name: StudentProgress.name, schema: StudentProgressSchema },
+      { name: Lesson.name, schema: LessonSchema },
     ]),
   ],
   controllers: [
