@@ -23,6 +23,7 @@ import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../../common/decorators/roles.decorator';
 import { UserRole } from './schemas/users.schema';
 import { UpdateStudentProfileDto } from './dto/update-student-profile.dto';
+import { ParentOverviewRequestDto } from './dto/parent-overview.dto';
 import { CreateStudentDto } from './dto/create-student.dto';
 import { StudentProfileResponseDto } from './dto/profile-response.dto';
 import { StudentListResponseDto } from './dto/student-list-response.dto';
@@ -123,5 +124,30 @@ export class StudentProfilesController {
     @Body() updateStudentProfileDto: UpdateStudentProfileDto,
   ): Promise<StudentProfile> {
     return this.usersService.updateStudentProfile(id, updateStudentProfileDto);
+  }
+
+  @Roles(UserRole.STUDENT)
+  @ApiOperation({ summary: 'Cập nhật hồ sơ học sinh' })
+  @ApiBearerAuth()
+  @Patch('me')
+  async updateStudentProfile(
+    @Req() req,
+    @Body() updateStudentProfileDto: UpdateStudentProfileDto,
+  ) {
+    return this.usersService.updateStudentProfile(
+      req.user.id,
+      updateStudentProfileDto,
+    );
+  }
+
+  @Roles(UserRole.STUDENT)
+  @ApiOperation({ summary: 'Tổng quan học tập dành cho Phụ huynh' })
+  @ApiBearerAuth()
+  @Post('parent-overview')
+  async getParentOverview(
+    @Req() req,
+    @Body() dto: ParentOverviewRequestDto,
+  ) {
+    return this.usersService.getParentOverview(req.user.id, dto);
   }
 }
