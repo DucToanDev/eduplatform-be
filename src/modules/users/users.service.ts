@@ -402,7 +402,6 @@ export class UsersService {
         grade_level: profile.grade_level,
         parent_phone: profile.parent_phone,
         points: profile.points,
-        parent_access_codes: profile.parent_access_codes,
       },
     };
   }
@@ -500,6 +499,7 @@ export class UsersService {
       username: profile.user_id.username || '',
       avatar_url: profile.user_id.avatar_url || '',
       password: profile.user_id.raw_password,
+      parent_access_codes: profile.parent_access_codes,
     }));
   }
 
