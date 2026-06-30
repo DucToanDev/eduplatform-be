@@ -18,4 +18,7 @@ export class StudentListResponseDto {
 
   @ApiProperty({ example: '123456' })
   readonly password?: string;
+
+  @ApiProperty({ example: 'PHHS1234', required: false })
+  readonly parent_access_codes?: string;
 }
