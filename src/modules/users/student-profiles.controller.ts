@@ -70,18 +70,6 @@ export class StudentProfilesController {
     return this.usersService.getStudentProfileByUserId(userId);
   }
 
-  @Get(':id')
-  @ApiOperation({ summary: 'Lấy hồ sơ học sinh theo profile id' })
-  @ApiOkResponse({
-    description: 'Lấy hồ sơ học sinh thành công',
-    type: StudentProfileResponseDto,
-  })
-  @ApiBadRequestResponse({ description: 'Profile id không hợp lệ' })
-  @ApiNotFoundResponse({ description: 'Không tìm thấy hồ sơ học sinh' })
-  getById(@Param('id') id: string): Promise<StudentProfileResponseDto> {
-    return this.usersService.getStudentProfile(id);
-  }
-
   @Get('by-teacher/:id')
   @ApiOperation({ summary: 'Lấy danh sách toàn bộ học sinh theo teacher id' })
   @ApiOkResponse({
@@ -110,21 +98,15 @@ export class StudentProfilesController {
     return this.usersService.getStudentsByClassId(classId);
   }
 
-  @Patch(':id')
-  @ApiOperation({ summary: 'Cập nhật hồ sơ học sinh' })
-  @ApiOkResponse({
-    description: 'Cập nhật hồ sơ học sinh thành công',
-    type: StudentProfile,
-  })
-  @ApiBadRequestResponse({
-    description: 'Id hoặc dữ liệu gửi lên không hợp lệ',
-  })
-  @ApiNotFoundResponse({ description: 'Không tìm thấy hồ sơ học sinh' })
-  update(
-    @Param('id') id: string,
-    @Body() updateStudentProfileDto: UpdateStudentProfileDto,
-  ): Promise<StudentProfile> {
-    return this.usersService.updateStudentProfile(id, updateStudentProfileDto);
+  @Roles(UserRole.STUDENT)
+  @ApiOperation({ summary: 'Tổng quan học tập dành cho Phụ huynh' })
+  @ApiBearerAuth()
+  @Get('parent-overview')
+  async getParentOverview(
+    @Req() req,
+    @Query() dto: ParentOverviewRequestDto,
+  ) {
+    return this.usersService.getParentOverview(req.user.id, dto);
   }
 
   @Roles(UserRole.STUDENT)
@@ -141,14 +123,32 @@ export class StudentProfilesController {
     );
   }
 
-  @Roles(UserRole.STUDENT)
-  @ApiOperation({ summary: 'Tổng quan học tập dành cho Phụ huynh' })
-  @ApiBearerAuth()
-  @Get('parent-overview')
-  async getParentOverview(
-    @Req() req,
-    @Query() dto: ParentOverviewRequestDto,
-  ) {
-    return this.usersService.getParentOverview(req.user.id, dto);
+  @Get(':id')
+  @ApiOperation({ summary: 'Lấy hồ sơ học sinh theo profile id' })
+  @ApiOkResponse({
+    description: 'Lấy hồ sơ học sinh thành công',
+    type: StudentProfileResponseDto,
+  })
+  @ApiBadRequestResponse({ description: 'Profile id không hợp lệ' })
+  @ApiNotFoundResponse({ description: 'Không tìm thấy hồ sơ học sinh' })
+  getById(@Param('id') id: string): Promise<StudentProfileResponseDto> {
+    return this.usersService.getStudentProfile(id);
+  }
+
+  @Patch(':id')
+  @ApiOperation({ summary: 'Cập nhật hồ sơ học sinh' })
+  @ApiOkResponse({
+    description: 'Cập nhật hồ sơ học sinh thành công',
+    type: StudentProfile,
+  })
+  @ApiBadRequestResponse({
+    description: 'Id hoặc dữ liệu gửi lên không hợp lệ',
+  })
+  @ApiNotFoundResponse({ description: 'Không tìm thấy hồ sơ học sinh' })
+  update(
+    @Param('id') id: string,
+    @Body() updateStudentProfileDto: UpdateStudentProfileDto,
+  ): Promise<StudentProfile> {
+    return this.usersService.updateStudentProfile(id, updateStudentProfileDto);
   }
 }
