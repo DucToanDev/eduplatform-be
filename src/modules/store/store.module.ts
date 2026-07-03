@@ -8,6 +8,7 @@ import {
   StudentInventorySchema,
 } from './schemas/student-inventory.schema';
 import { PointsModule } from '../points/points.module';
+import { UsersModule } from '../users/users.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { PointsModule } from '../points/points.module';
       { name: StudentInventory.name, schema: StudentInventorySchema },
     ]),
     PointsModule,
+    UsersModule,
   ],
   controllers: [StoreController],
   providers: [StoreService],

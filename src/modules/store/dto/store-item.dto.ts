@@ -6,13 +6,13 @@ import {
   Min,
   IsUrl,
 } from 'class-validator';
-import { StoreItemStatus } from '../schemas/store-item.schema';
+import { StoreItemStatus, StoreItemType } from '../schemas/store-item.schema';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class CreateStoreItemDto {
-  @ApiProperty({ description: 'Phân loại vật phẩm', example: 'Khung Avatar' })
-  @IsString()
-  type: string;
+  @ApiProperty({ enum: StoreItemType, description: 'Phân loại vật phẩm', example: StoreItemType.FRAME })
+  @IsEnum(StoreItemType)
+  type: StoreItemType;
 
   @ApiProperty({ description: 'Tên vật phẩm', example: 'Khung Rồng Lửa VIP' })
   @IsString()
@@ -58,10 +58,10 @@ export class CreateStoreItemDto {
 }
 
 export class UpdateStoreItemDto {
-  @ApiPropertyOptional({ description: 'Phân loại vật phẩm', example: 'Avatar' })
+  @ApiPropertyOptional({ enum: StoreItemType, description: 'Phân loại vật phẩm', example: StoreItemType.AVATAR })
   @IsOptional()
-  @IsString()
-  type?: string;
+  @IsEnum(StoreItemType)
+  type?: StoreItemType;
 
   @ApiPropertyOptional({
     description: 'Tên vật phẩm',

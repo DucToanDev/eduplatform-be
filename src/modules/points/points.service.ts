@@ -1,17 +1,14 @@
 import { Injectable, ForbiddenException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types, ClientSession } from 'mongoose';
-import {
-  RewardBalance,
-  RewardBalanceDocument,
-} from './schemas/reward-balance.schema';
 import { ClassesService } from '../classes/classes.service';
+import { StudentProfile, StudentProfileDocument } from '../users/schemas/student-profile.schema';
 
 @Injectable()
 export class PointsService {
   constructor(
-    @InjectModel(RewardBalance.name)
-    private rewardBalanceModel: Model<RewardBalanceDocument>,
+    @InjectModel(StudentProfile.name)
+    private studentProfileModel: Model<StudentProfileDocument>,
     private readonly classesService: ClassesService,
   ) {}
 
@@ -20,18 +17,18 @@ export class PointsService {
     amount: number,
     session?: ClientSession,
   ) {
-    return this.rewardBalanceModel.findOneAndUpdate(
-      { student_id: new Types.ObjectId(studentId) },
-      { $inc: { balance: amount } },
-      { new: true, upsert: true, session },
+    return this.studentProfileModel.findOneAndUpdate(
+      { user_id: new Types.ObjectId(studentId) },
+      { $inc: { points: amount } },
+      { new: true, upsert: false, session },
     );
   }
 
   async getBalance(studentId: string, session?: ClientSession) {
-    const record = await this.rewardBalanceModel
-      .findOne({ student_id: new Types.ObjectId(studentId) })
+    const record = await this.studentProfileModel
+      .findOne({ user_id: new Types.ObjectId(studentId) })
       .session(session || null)
       .exec();
-    return { balance: record?.balance || 0 };
+    return { balance: record?.points || 0 };
   }
 }
