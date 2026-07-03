@@ -1,4 +1,4 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class StudentListResponseDto {
   @ApiProperty({ example: '6659f9f7c1e9e7f0c4f0d1111' })
