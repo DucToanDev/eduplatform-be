@@ -17,6 +17,12 @@ export class ProfileUserResponseDto {
   })
   readonly avatar_url: string;
 
+  @ApiPropertyOptional({
+    example:
+      'https://res.cloudinary.com/demo/image/upload/v1710000000/edu-platform/frames/frame.png',
+  })
+  readonly frame_url?: string;
+
   @ApiPropertyOptional({ example: '0901234567' })
   readonly phone?: string;
 

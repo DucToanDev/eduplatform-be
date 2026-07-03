@@ -16,6 +16,12 @@ export class StudentListResponseDto {
   })
   readonly avatar_url: string;
 
+  @ApiPropertyOptional({
+    example:
+      'https://res.cloudinary.com/demo/image/upload/v1710000000/edu-platform/frames/frame.png',
+  })
+  readonly frame_url?: string;
+
   @ApiProperty({ example: '123456' })
   readonly password?: string;
 
