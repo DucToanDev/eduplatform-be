@@ -110,7 +110,7 @@ export class CoursesService {
         is_deleted: false,
       },
       { $set: updatePayload },
-      { new: true, runValidators: true },
+      { returnDocument: 'after', runValidators: true },
     );
 
     if (!course) {
@@ -133,7 +133,7 @@ export class CoursesService {
         is_deleted: false,
       },
       { $set: { is_deleted: true } },
-      { new: true },
+      { returnDocument: 'after' },
     );
 
     if (!course) {
@@ -211,7 +211,7 @@ export class CoursesService {
         is_deleted: false,
       },
       { $set: updatePayload },
-      { new: true, runValidators: true },
+      { returnDocument: 'after', runValidators: true },
     );
 
     if (!course) {

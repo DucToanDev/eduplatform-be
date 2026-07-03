@@ -20,7 +20,7 @@ export class PointsService {
     return this.studentProfileModel.findOneAndUpdate(
       { user_id: new Types.ObjectId(studentId) },
       { $inc: { points: amount } },
-      { new: true, upsert: false, session },
+      { returnDocument: 'after', upsert: false, session },
     );
   }
 
