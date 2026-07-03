@@ -1,4 +1,4 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class StudentListResponseDto {
   @ApiProperty({ example: '6659f9f7c1e9e7f0c4f0d1111' })
@@ -15,6 +15,12 @@ export class StudentListResponseDto {
       'https://ui-avatars.com/api/?name=hocsinh1&background=f97316&color=ffffff&size=128',
   })
   readonly avatar_url: string;
+
+  @ApiPropertyOptional({
+    example:
+      'https://res.cloudinary.com/demo/image/upload/v1710000000/edu-platform/frames/frame.png',
+  })
+  readonly frame_url?: string;
 
   @ApiProperty({ example: '123456' })
   readonly password?: string;

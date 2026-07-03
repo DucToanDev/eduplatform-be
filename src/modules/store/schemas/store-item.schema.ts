@@ -6,12 +6,18 @@ export enum StoreItemStatus {
   SOLDOUT = 'soldout',
 }
 
+export enum StoreItemType {
+  AVATAR = 'avatar',
+  FRAME = 'frame',
+  PHYSICAL = 'physical',
+}
+
 @Schema({ timestamps: true })
 export class StoreItem {
   @Prop({ type: Types.ObjectId, ref: 'Users', required: true })
   teacher_id: Types.ObjectId;
 
-  @Prop({ type: String, required: true, trim: true })
+  @Prop({ type: String, enum: StoreItemType, required: true, trim: true })
   type: string;
 
   @Prop({ type: String, required: true, trim: true })

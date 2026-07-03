@@ -31,6 +31,9 @@ export class Users {
   })
   avatar_url: string;
 
+  @Prop({ type: String })
+  frame_url?: string;
+
   @Prop({ type: String, enum: ['MALE', 'FEMALE', 'OTHER'] })
   gender?: string;
 

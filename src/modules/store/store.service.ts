@@ -15,6 +15,7 @@ import {
   StudentInventoryDocument,
 } from './schemas/student-inventory.schema';
 import { PointsService } from '../points/points.service';
+import { Users, UsersDocument } from '../users/schemas/users.schema';
 
 @Injectable()
 export class StoreService {
@@ -23,6 +24,8 @@ export class StoreService {
     private storeItemModel: Model<StoreItemDocument>,
     @InjectModel(StudentInventory.name)
     private studentInventoryModel: Model<StudentInventoryDocument>,
+    @InjectModel(Users.name)
+    private userModel: Model<UsersDocument>,
     private pointsService: PointsService,
   ) {}
 
@@ -144,13 +147,62 @@ export class StoreService {
   }
 
   async toggleInventoryItem(studentId: string, inventoryId: string) {
-    const inventoryItem = await this.studentInventoryModel.findOne({
-      _id: new Types.ObjectId(inventoryId),
-      student_id: new Types.ObjectId(studentId),
-    });
+    const inventoryItem = await this.studentInventoryModel
+      .findOne({
+        _id: new Types.ObjectId(inventoryId),
+        student_id: new Types.ObjectId(studentId),
+      })
+      .populate('item_id');
+
     if (!inventoryItem) throw new NotFoundException('Inventory item not found');
 
-    inventoryItem.active = !inventoryItem.active;
+    const item = inventoryItem.item_id as unknown as StoreItem;
+    const isVirtual = item.type === 'avatar' || item.type === 'frame';
+
+    if (!isVirtual) {
+      throw new BadRequestException('Vật phẩm này không thể trang bị');
+    }
+
+    const isEquipping = !inventoryItem.active;
+
+    if (isEquipping) {
+      await this.studentInventoryModel.updateMany(
+        {
+          student_id: new Types.ObjectId(studentId),
+          type: item.type,
+          _id: { $ne: inventoryItem._id },
+        },
+        { $set: { active: false } },
+      );
+
+      inventoryItem.active = true;
+
+      const updatePayload =
+        item.type === 'avatar'
+          ? { avatar_url: item.image_url }
+          : { frame_url: item.image_url };
+      await this.userModel.findByIdAndUpdate(studentId, updatePayload);
+    } else {
+      inventoryItem.active = false;
+
+      if (item.type === 'avatar') {
+        const user = await this.userModel.findById(studentId);
+        if (user) {
+          const name = user.username
+            ? encodeURIComponent(user.username)
+            : 'User';
+          const defaultAvatar = `https://ui-avatars.com/api/?name=${name}&background=f97316&color=ffffff&size=128`;
+          await this.userModel.findByIdAndUpdate(studentId, {
+            avatar_url: defaultAvatar,
+          });
+        }
+      } else {
+        await this.userModel.findByIdAndUpdate(studentId, {
+          $unset: { frame_url: 1 },
+        });
+      }
+    }
+
     await inventoryItem.save();
     return inventoryItem;
   }
