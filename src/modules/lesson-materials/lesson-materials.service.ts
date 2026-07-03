@@ -106,7 +106,7 @@ export class LessonMaterialsService {
     this.validateObjectId(id);
 
     const material = await this.materialModel
-      .findByIdAndUpdate(id, dto, { new: true, runValidators: true })
+      .findByIdAndUpdate(id, dto, { returnDocument: 'after', runValidators: true })
       .exec();
 
     if (!material) {

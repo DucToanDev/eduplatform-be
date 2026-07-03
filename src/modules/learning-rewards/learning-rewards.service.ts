@@ -68,7 +68,7 @@ export class LearningRewardsService {
         reward_points: rewardPoints,
         teacher_id: new Types.ObjectId(teacherId),
       },
-      { new: true, upsert: true },
+      { returnDocument: 'after', upsert: true },
     );
   }
 

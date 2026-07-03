@@ -88,7 +88,7 @@ export class ProgressService {
       },
       Object.keys(update).length > 0 ? { $set: update } : {},
       {
-        new: true,
+        returnDocument: 'after',
         upsert: true,
         setDefaultsOnInsert: true,
         runValidators: true,
