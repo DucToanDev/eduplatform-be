@@ -59,7 +59,7 @@ export class NotificationsService {
     const notification = await this.notificationModel.findOneAndUpdate(
       { _id: new Types.ObjectId(id), user_id: new Types.ObjectId(userId) },
       { $set: { is_read: true } },
-      { new: true },
+      { returnDocument: 'after' },
     );
 
     if (!notification) {

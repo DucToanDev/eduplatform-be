@@ -43,7 +43,7 @@ export class StoreService {
         teacher_id: new Types.ObjectId(teacherId),
       },
       updateDto,
-      { new: true },
+      { returnDocument: 'after' },
     );
     if (!item)
       throw new NotFoundException(
