@@ -8,8 +8,11 @@ import {
   Post,
   Query,
   Req,
+  UploadedFile,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import {
   ApiBadRequestResponse,
   ApiBearerAuth,
@@ -19,6 +22,8 @@ import {
   ApiOkResponse,
   ApiOperation,
   ApiTags,
+  ApiConsumes,
+  ApiBody,
 } from '@nestjs/swagger';
 import { Request } from 'express';
 import { Roles } from '../../common/decorators/roles.decorator';
@@ -48,8 +53,29 @@ export class CoursesController {
   @ApiOperation({ summary: 'Giáo viên tạo khóa học mới' })
   @ApiCreatedResponse({ description: 'Tạo khóa học thành công' })
   @ApiBadRequestResponse({ description: 'Dữ liệu không hợp lệ' })
-  create(@Body() dto: CreateCourseDto, @Req() req: AuthenticatedRequest) {
-    return this.coursesService.create(dto, req.user.id);
+  @UseInterceptors(FileInterceptor('thumbnail'))
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        title: { type: 'string' },
+        description: { type: 'string' },
+        category: { type: 'string' },
+        is_demo: { type: 'boolean' },
+        is_marketplace: { type: 'boolean' },
+        price: { type: 'number' },
+        thumbnail: { type: 'string', format: 'binary' },
+      },
+      required: ['title'],
+    },
+  })
+  create(
+    @Body() dto: CreateCourseDto,
+    @Req() req: AuthenticatedRequest,
+    @UploadedFile() thumbnail?: Express.Multer.File,
+  ) {
+    return this.coursesService.create(dto, req.user.id, thumbnail);
   }
 
   //Lấy khóa học của chính mình
@@ -96,12 +122,29 @@ export class CoursesController {
   @ApiOkResponse({ description: 'Cập nhật thành công' })
   @ApiNotFoundResponse({ description: 'Không tìm thấy khóa học' })
   @ApiForbiddenResponse({ description: 'Không có quyền cập nhật' })
+  @UseInterceptors(FileInterceptor('thumbnail'))
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        title: { type: 'string' },
+        description: { type: 'string' },
+        category: { type: 'string' },
+        is_demo: { type: 'boolean' },
+        is_marketplace: { type: 'boolean' },
+        price: { type: 'number' },
+        thumbnail: { type: 'string', format: 'binary' },
+      },
+    },
+  })
   update(
     @Param('id') id: string,
     @Body() dto: UpdateCourseDto,
     @Req() req: AuthenticatedRequest,
+    @UploadedFile() thumbnail?: Express.Multer.File,
   ) {
-    return this.coursesService.update(id, dto, req.user.id);
+    return this.coursesService.update(id, dto, req.user.id, thumbnail);
   }
 
   //Admin/Manager: Duyệt/publish/reject khóa học

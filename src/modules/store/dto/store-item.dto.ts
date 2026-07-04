@@ -40,14 +40,6 @@ export class CreateStoreItemDto {
   stock: number;
 
   @ApiPropertyOptional({
-    description: 'Đường dẫn ảnh minh hoạ',
-    example: 'https://example.com/khung-rong-lua.png',
-  })
-  @IsOptional()
-  @IsUrl()
-  image_url?: string;
-
-  @ApiPropertyOptional({
     enum: StoreItemStatus,
     description: 'Trạng thái',
     example: StoreItemStatus.ACTIVE,
@@ -90,14 +82,6 @@ export class UpdateStoreItemDto {
   @IsNumber()
   @Min(0)
   stock?: number;
-
-  @ApiPropertyOptional({
-    description: 'Đường dẫn ảnh minh hoạ',
-    example: 'https://example.com/avatar-cu-meo.png',
-  })
-  @IsOptional()
-  @IsUrl()
-  image_url?: string;
 
   @ApiPropertyOptional({
     enum: StoreItemStatus,
