@@ -24,14 +24,6 @@ export class CreateCourseDto {
   description?: string;
 
   @ApiPropertyOptional({
-    example: 'https://example.com/thumbnail.jpg',
-    description: 'URL ảnh thumbnail',
-  })
-  @IsOptional()
-  @IsString()
-  thumbnail_url?: string;
-
-  @ApiPropertyOptional({
     example: '665a1b2c3d4e5f6a7b8c9d0e',
     description: 'ID danh mục khóa học',
   })
