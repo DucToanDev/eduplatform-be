@@ -6,7 +6,6 @@ import {
   Delete,
   Body,
   Param,
-  Param,
   Req,
   UploadedFile,
   UseGuards,
