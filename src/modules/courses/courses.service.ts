@@ -20,6 +20,7 @@ import { UpdateCourseDto } from './dto/update-course.dto';
 import { CourseQueryDto } from './dto/course-query.dto';
 import { UpdateCourseStatusDto } from './dto/update-course-status.dto';
 import { Course, CourseDocument, CourseStatus } from './schemas/course.schema';
+import { UploadsService } from '../uploads/uploads.service';
 
 @Injectable()
 export class CoursesService {
@@ -28,11 +29,13 @@ export class CoursesService {
     private readonly courseModel: Model<CourseDocument>,
     @InjectModel(CourseCategory.name)
     private readonly categoryModel: Model<CourseCategoryDocument>,
+    private readonly uploadsService: UploadsService,
   ) {}
 
   async create(
     dto: CreateCourseDto,
     authorId: string,
+    thumbnail?: Express.Multer.File,
   ): Promise<CourseDocument> {
     this.validateObjectId(authorId);
 
@@ -40,8 +43,15 @@ export class CoursesService {
       await this.validateCategoryExists(dto.category);
     }
 
+    let thumbnailUrl = '';
+    if (thumbnail) {
+      const uploadResult = await this.uploadsService.uploadImage(thumbnail, 'edu-platform/courses');
+      thumbnailUrl = uploadResult.secure_url;
+    }
+
     const course = await this.courseModel.create({
       ...dto,
+      thumbnail_url: thumbnailUrl,
       author_id: new Types.ObjectId(authorId),
       category: dto.category ? new Types.ObjectId(dto.category) : undefined,
       status: CourseStatus.DRAFT,
@@ -90,6 +100,7 @@ export class CoursesService {
     id: string,
     dto: UpdateCourseDto,
     authorId: string,
+    thumbnail?: Express.Multer.File,
   ): Promise<CourseDocument> {
     this.validateObjectId(id);
     this.validateObjectId(authorId);
@@ -98,17 +109,31 @@ export class CoursesService {
       await this.validateCategoryExists(dto.category);
     }
 
+    const existingCourse = await this.courseModel.findOne({
+      _id: new Types.ObjectId(id),
+      author_id: new Types.ObjectId(authorId),
+      is_deleted: false,
+    });
+
+    if (!existingCourse) {
+      throw new NotFoundException('Không tìm thấy khóa học hoặc bạn không có quyền cập nhật');
+    }
+
     const updatePayload: Record<string, unknown> = { ...dto };
     if (dto.category) {
       updatePayload.category = new Types.ObjectId(dto.category);
     }
 
+    if (thumbnail) {
+      if (existingCourse.thumbnail_url) {
+        await this.uploadsService.deleteFileByUrl(existingCourse.thumbnail_url);
+      }
+      const uploadResult = await this.uploadsService.uploadImage(thumbnail, 'edu-platform/courses');
+      updatePayload.thumbnail_url = uploadResult.secure_url;
+    }
+
     const course = await this.courseModel.findOneAndUpdate(
-      {
-        _id: new Types.ObjectId(id),
-        author_id: new Types.ObjectId(authorId),
-        is_deleted: false,
-      },
+      { _id: existingCourse._id },
       { $set: updatePayload },
       { returnDocument: 'after', runValidators: true },
     );

@@ -16,6 +16,7 @@ import {
 } from './schemas/student-inventory.schema';
 import { PointsService } from '../points/points.service';
 import { Users, UsersDocument } from '../users/schemas/users.schema';
+import { UploadsService } from '../uploads/uploads.service';
 
 @Injectable()
 export class StoreService {
@@ -27,28 +28,48 @@ export class StoreService {
     @InjectModel(Users.name)
     private userModel: Model<UsersDocument>,
     private pointsService: PointsService,
+    private readonly uploadsService: UploadsService,
   ) {}
 
-  async createStoreItem(teacherId: string, createDto: any) {
+  async createStoreItem(teacherId: string, createDto: any, image?: Express.Multer.File) {
+    let imageUrl = '';
+    if (image) {
+      const uploadResult = await this.uploadsService.uploadImage(image, 'edu-platform/store-items');
+      imageUrl = uploadResult.secure_url;
+    }
+    
     return this.storeItemModel.create({
       ...createDto,
+      image_url: imageUrl,
       teacher_id: new Types.ObjectId(teacherId),
     });
   }
 
-  async updateStoreItem(teacherId: string, itemId: string, updateDto: any) {
+  async updateStoreItem(teacherId: string, itemId: string, updateDto: any, image?: Express.Multer.File) {
+    const existingItem = await this.storeItemModel.findOne({
+      _id: new Types.ObjectId(itemId),
+      teacher_id: new Types.ObjectId(teacherId),
+    });
+
+    if (!existingItem) {
+      throw new NotFoundException('Store item not found or you do not have permission');
+    }
+
+    const updatePayload = { ...updateDto };
+
+    if (image) {
+      if (existingItem.image_url) {
+        await this.uploadsService.deleteFileByUrl(existingItem.image_url);
+      }
+      const uploadResult = await this.uploadsService.uploadImage(image, 'edu-platform/store-items');
+      updatePayload.image_url = uploadResult.secure_url;
+    }
+
     const item = await this.storeItemModel.findOneAndUpdate(
-      {
-        _id: new Types.ObjectId(itemId),
-        teacher_id: new Types.ObjectId(teacherId),
-      },
-      updateDto,
+      { _id: existingItem._id },
+      updatePayload,
       { returnDocument: 'after' },
     );
-    if (!item)
-      throw new NotFoundException(
-        'Store item not found or you do not have permission',
-      );
     return item;
   }
 

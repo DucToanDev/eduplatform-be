@@ -81,4 +81,18 @@ export class UploadsService {
       Readable.from(file.buffer).pipe(uploadStream);
     });
   }
+
+  async deleteFileByUrl(url: string): Promise<void> {
+    if (!url || !url.includes('cloudinary.com')) return;
+    
+    try {
+      const match = url.match(/\/upload\/(?:v\d+\/)?([^\.]+)/);
+      if (match && match[1]) {
+        const publicId = match[1];
+        await this.cloudinaryClient.uploader.destroy(publicId);
+      }
+    } catch (error) {
+      console.error('Failed to delete file from Cloudinary:', error);
+    }
+  }
 }

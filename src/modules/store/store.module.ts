@@ -9,6 +9,7 @@ import {
 } from './schemas/student-inventory.schema';
 import { PointsModule } from '../points/points.module';
 import { UsersModule } from '../users/users.module';
+import { UploadsModule } from '../uploads/uploads.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { UsersModule } from '../users/users.module';
     ]),
     PointsModule,
     UsersModule,
+    UploadsModule,
   ],
   controllers: [StoreController],
   providers: [StoreService],
