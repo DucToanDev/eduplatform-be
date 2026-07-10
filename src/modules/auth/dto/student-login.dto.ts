@@ -15,7 +15,7 @@ export class StudentLoginDto {
   readonly username: string;
 
   @ApiProperty({
-    example: '123123',
+    example: '123',
     description: 'Mật khẩu của tài khoản',
   })
   @IsNotEmpty()
