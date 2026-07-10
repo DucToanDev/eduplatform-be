@@ -4,8 +4,8 @@ import { ApiProperty } from '@nestjs/swagger';
 
 export class LoginDto {
   @ApiProperty({
-    example: 'teacher@example.com',
-    description: 'Email đã đăng ký',
+    example: 'admin@edu.com',
+    description: 'Email đã đăng ký (VD: admin@edu.com, gv1@edu.com)',
   })
   @Transform(({ value }) =>
     typeof value === 'string' ? value.trim().toLowerCase() : value,
@@ -15,7 +15,7 @@ export class LoginDto {
   readonly email: string;
 
   @ApiProperty({
-    example: 'password123',
+    example: '123',
     description: 'Mật khẩu của tài khoản',
   })
   @IsNotEmpty()
