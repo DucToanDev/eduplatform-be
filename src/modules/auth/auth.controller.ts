@@ -100,8 +100,8 @@ export class AuthController {
     schema: {
       type: 'object',
       properties: {
-        email: { type: 'string', example: 'admin@eduplatform.com' },
-        password: { type: 'string', example: 'admin123' },
+        email: { type: 'string', example: 'admin@edu.com' },
+        password: { type: 'string', example: '123' },
       },
     },
   })
