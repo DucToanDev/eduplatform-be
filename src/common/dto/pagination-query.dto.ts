@@ -8,12 +8,13 @@ export class PaginationQueryDto {
     default: 1,
     minimum: 1,
     description: 'Số trang',
+    type: Number,
   })
   @Type(() => Number)
   @IsInt()
   @Min(1)
   @IsOptional()
-  page = 1;
+  page: number = 1;
 
   @ApiPropertyOptional({
     example: 10,
@@ -21,11 +22,12 @@ export class PaginationQueryDto {
     minimum: 1,
     maximum: 100,
     description: 'Số lượng item mỗi trang',
+    type: Number,
   })
   @Type(() => Number)
   @IsInt()
   @Min(1)
   @Max(100)
   @IsOptional()
-  limit = 10;
+  limit: number = 10;
 }

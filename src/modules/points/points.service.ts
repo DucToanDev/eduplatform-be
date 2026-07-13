@@ -2,7 +2,10 @@ import { Injectable, ForbiddenException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types, ClientSession } from 'mongoose';
 import { ClassesService } from '../classes/classes.service';
-import { StudentProfile, StudentProfileDocument } from '../users/schemas/student-profile.schema';
+import {
+  StudentProfile,
+  StudentProfileDocument,
+} from '../users/schemas/student-profile.schema';
 
 @Injectable()
 export class PointsService {
