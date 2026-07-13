@@ -10,7 +10,11 @@ import { StoreItemStatus, StoreItemType } from '../schemas/store-item.schema';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class CreateStoreItemDto {
-  @ApiProperty({ enum: StoreItemType, description: 'Phân loại vật phẩm', example: StoreItemType.FRAME })
+  @ApiProperty({
+    enum: StoreItemType,
+    description: 'Phân loại vật phẩm',
+    example: StoreItemType.FRAME,
+  })
   @IsEnum(StoreItemType)
   type: StoreItemType;
 
@@ -50,7 +54,11 @@ export class CreateStoreItemDto {
 }
 
 export class UpdateStoreItemDto {
-  @ApiPropertyOptional({ enum: StoreItemType, description: 'Phân loại vật phẩm', example: StoreItemType.AVATAR })
+  @ApiPropertyOptional({
+    enum: StoreItemType,
+    description: 'Phân loại vật phẩm',
+    example: StoreItemType.AVATAR,
+  })
   @IsOptional()
   @IsEnum(StoreItemType)
   type?: StoreItemType;

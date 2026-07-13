@@ -51,7 +51,13 @@ const run = async () => {
     const hashedPassword = bcrypt.hashSync(defaultPassword, 10);
     const now = new Date();
 
-    const generateUser = (id: Types.ObjectId, username: string, fullname: string, role: string, email: string) => ({
+    const generateUser = (
+      id: Types.ObjectId,
+      username: string,
+      fullname: string,
+      role: string,
+      email: string,
+    ) => ({
       _id: id,
       username,
       fullname,
@@ -79,15 +85,69 @@ const run = async () => {
 
     const users = [
       generateUser(adminId, 'admin', 'Quản Trị Viên', 'admin', 'admin@edu.com'),
-      generateUser(managerId, 'manager', 'Quản Lý Học Tập', 'manager', 'manager@edu.com'),
-      generateUser(teacher1Id, 'giaovien1', 'Cô Giáo Tâm', 'teacher', 'gv1@edu.com'),
-      generateUser(teacher2Id, 'giaovien2', 'Thầy Giáo Sơn', 'teacher', 'gv2@edu.com'),
-      generateUser(parent1Id, 'phuhuynh1', 'Phụ Huynh Bé Nam', 'parent', 'ph1@edu.com'),
-      generateUser(parent2Id, 'phuhuynh2', 'Phụ Huynh Bé Mai', 'parent', 'ph2@edu.com'),
-      generateUser(student1Id, 'hocsinh1', 'Học sinh Nam', 'student', 'hs1@edu.com'),
-      generateUser(student2Id, 'hocsinh2', 'Học sinh Mai', 'student', 'hs2@edu.com'),
-      generateUser(student3Id, 'hocsinh3', 'Học sinh Bách', 'student', 'hs3@edu.com'),
-      generateUser(student4Id, 'hocsinh4', 'Học sinh Lan', 'student', 'hs4@edu.com'),
+      generateUser(
+        managerId,
+        'manager',
+        'Quản Lý Học Tập',
+        'manager',
+        'manager@edu.com',
+      ),
+      generateUser(
+        teacher1Id,
+        'giaovien1',
+        'Cô Giáo Tâm',
+        'teacher',
+        'gv1@edu.com',
+      ),
+      generateUser(
+        teacher2Id,
+        'giaovien2',
+        'Thầy Giáo Sơn',
+        'teacher',
+        'gv2@edu.com',
+      ),
+      generateUser(
+        parent1Id,
+        'phuhuynh1',
+        'Phụ Huynh Bé Nam',
+        'parent',
+        'ph1@edu.com',
+      ),
+      generateUser(
+        parent2Id,
+        'phuhuynh2',
+        'Phụ Huynh Bé Mai',
+        'parent',
+        'ph2@edu.com',
+      ),
+      generateUser(
+        student1Id,
+        'hocsinh1',
+        'Học sinh Nam',
+        'student',
+        'hs1@edu.com',
+      ),
+      generateUser(
+        student2Id,
+        'hocsinh2',
+        'Học sinh Mai',
+        'student',
+        'hs2@edu.com',
+      ),
+      generateUser(
+        student3Id,
+        'hocsinh3',
+        'Học sinh Bách',
+        'student',
+        'hs3@edu.com',
+      ),
+      generateUser(
+        student4Id,
+        'hocsinh4',
+        'Học sinh Lan',
+        'student',
+        'hs4@edu.com',
+      ),
     ];
 
     await db.collection('users').insertMany(users);
@@ -144,9 +204,30 @@ const run = async () => {
     const catSciId = new Types.ObjectId();
 
     const categories = [
-      { _id: catMathId, name: 'Toán Học', description: 'Các khóa học Toán', is_active: true, createdAt: now, updatedAt: now },
-      { _id: catEngId, name: 'Tiếng Anh', description: 'Các khóa học Tiếng Anh', is_active: true, createdAt: now, updatedAt: now },
-      { _id: catSciId, name: 'Khoa Học', description: 'Khám phá thế giới', is_active: true, createdAt: now, updatedAt: now },
+      {
+        _id: catMathId,
+        name: 'Toán Học',
+        description: 'Các khóa học Toán',
+        is_active: true,
+        createdAt: now,
+        updatedAt: now,
+      },
+      {
+        _id: catEngId,
+        name: 'Tiếng Anh',
+        description: 'Các khóa học Tiếng Anh',
+        is_active: true,
+        createdAt: now,
+        updatedAt: now,
+      },
+      {
+        _id: catSciId,
+        name: 'Khoa Học',
+        description: 'Khám phá thế giới',
+        is_active: true,
+        createdAt: now,
+        updatedAt: now,
+      },
     ];
 
     await db.collection('course_categories').insertMany(categories);
@@ -167,7 +248,8 @@ const run = async () => {
         price: 500000,
         is_demo: false,
         is_marketplace: true,
-        thumbnail_url: 'https://images.unsplash.com/photo-1632516643720-e7f5d7d6eca9?w=500&q=80',
+        thumbnail_url:
+          'https://images.unsplash.com/photo-1632516643720-e7f5d7d6eca9?w=500&q=80',
         is_deleted: false,
         createdAt: now,
         updatedAt: now,
@@ -182,7 +264,8 @@ const run = async () => {
         price: 0,
         is_demo: true,
         is_marketplace: true,
-        thumbnail_url: 'https://images.unsplash.com/photo-1491841550275-ad7854e35ca6?w=500&q=80',
+        thumbnail_url:
+          'https://images.unsplash.com/photo-1491841550275-ad7854e35ca6?w=500&q=80',
         is_deleted: false,
         createdAt: now,
         updatedAt: now,
@@ -197,7 +280,8 @@ const run = async () => {
         price: 300000,
         is_demo: false,
         is_marketplace: true,
-        thumbnail_url: 'https://images.unsplash.com/photo-1532094349884-543bc11b234d?w=500&q=80',
+        thumbnail_url:
+          'https://images.unsplash.com/photo-1532094349884-543bc11b234d?w=500&q=80',
         is_deleted: false,
         createdAt: now,
         updatedAt: now,
@@ -220,7 +304,7 @@ const run = async () => {
         status: 'ACTIVE',
         createdAt: now,
         updatedAt: now,
-      }
+      },
     ]);
 
     await db.collection('class_enrollments').insertMany([
@@ -239,7 +323,7 @@ const run = async () => {
         status: 'ACTIVE',
         createdAt: now,
         updatedAt: now,
-      }
+      },
     ]);
 
     await db.collection('lessons').insertMany([
@@ -262,7 +346,7 @@ const run = async () => {
         is_deleted: false,
         createdAt: now,
         updatedAt: now,
-      }
+      },
     ]);
 
     await db.collection('lesson_materials').insertMany([
@@ -283,7 +367,7 @@ const run = async () => {
         order_index: 2,
         createdAt: now,
         updatedAt: now,
-      }
+      },
     ]);
 
     // 6. Create Store Items
@@ -301,7 +385,8 @@ const run = async () => {
         points: 500,
         stock: 50,
         sold_count: 0,
-        image_url: 'https://res.cloudinary.com/ds52btbjy/image/upload/v1782660562/sticker/z7970678589642_05ef4184a404757bb738d7a6da18ea33_rtihnl.jpg',
+        image_url:
+          'https://res.cloudinary.com/ds52btbjy/image/upload/v1782660562/sticker/z7970678589642_05ef4184a404757bb738d7a6da18ea33_rtihnl.jpg',
         status: 'active',
         createdAt: now,
         updatedAt: now,
@@ -329,11 +414,12 @@ const run = async () => {
         points: 200,
         stock: 100,
         sold_count: 0,
-        image_url: 'https://res.cloudinary.com/ds52btbjy/image/upload/v1782660561/sticker/z7970678587484_0741244e565a2463747752e1f7b406a2_l8yrdg.jpg',
+        image_url:
+          'https://res.cloudinary.com/ds52btbjy/image/upload/v1782660561/sticker/z7970678587484_0741244e565a2463747752e1f7b406a2_l8yrdg.jpg',
         status: 'active',
         createdAt: now,
         updatedAt: now,
-      }
+      },
     ];
 
     await db.collection('storeitems').insertMany(storeItems);
@@ -359,18 +445,19 @@ const run = async () => {
         active: true,
         createdAt: now,
         updatedAt: now,
-      }
+      },
     ]);
 
     // Set Avatar & Frame for Student 1
     await db.collection('users').updateOne(
       { _id: student1Id },
-      { 
-        $set: { 
-          avatar_url: 'https://res.cloudinary.com/ds52btbjy/image/upload/v1782660562/sticker/z7970678589642_05ef4184a404757bb738d7a6da18ea33_rtihnl.jpg',
-          frame_url: 'https://example.com/khung-rong-lua.png'
-        } 
-      }
+      {
+        $set: {
+          avatar_url:
+            'https://res.cloudinary.com/ds52btbjy/image/upload/v1782660562/sticker/z7970678589642_05ef4184a404757bb738d7a6da18ea33_rtihnl.jpg',
+          frame_url: 'https://example.com/khung-rong-lua.png',
+        },
+      },
     );
 
     // 8. Add Learning Rewards
@@ -392,11 +479,10 @@ const run = async () => {
         reason: 'Điểm danh chuyên cần',
         createdAt: now,
         updatedAt: now,
-      }
+      },
     ]);
 
     console.log('Seed data successfully generated! 🌱');
-
   } catch (error) {
     console.error('Seed execution failed:', error);
   } finally {

@@ -84,7 +84,7 @@ export class UploadsService {
 
   async deleteFileByUrl(url: string): Promise<void> {
     if (!url || !url.includes('cloudinary.com')) return;
-    
+
     try {
       const match = url.match(/\/upload\/(?:v\d+\/)?([^\.]+)/);
       if (match && match[1]) {

@@ -537,7 +537,9 @@ export class UsersService {
   async getParentOverview(studentId: string, dto: ParentOverviewRequestDto) {
     this.validateObjectId(studentId);
 
-    const profile = await this.studentProfileModel.findOne({ user_id: new Types.ObjectId(studentId) });
+    const profile = await this.studentProfileModel.findOne({
+      user_id: new Types.ObjectId(studentId),
+    });
     if (!profile) {
       throw new NotFoundException('Không tìm thấy hồ sơ học sinh');
     }
@@ -546,7 +548,9 @@ export class UsersService {
       throw new ForbiddenException('Mã truy cập không hợp lệ');
     }
 
-    const studentUser = await this.findProfileUser(new Types.ObjectId(studentId));
+    const studentUser = await this.findProfileUser(
+      new Types.ObjectId(studentId),
+    );
 
     // Lấy danh sách lớp học
     const enrollments = await this.classEnrollmentModel
@@ -557,8 +561,8 @@ export class UsersService {
         populate: {
           path: 'teacher_id',
           model: 'Users',
-          select: 'fullname'
-        }
+          select: 'fullname',
+        },
       });
 
     const enrolled_classes = enrollments.map((enrollment: any) => ({
@@ -576,17 +580,30 @@ export class UsersService {
       .exec();
 
     const totalRecords = progressRecords.length;
-    const completedRecords = progressRecords.filter(p => p.is_completed).length;
-    const completion_rate = totalRecords > 0 ? Math.round((completedRecords / totalRecords) * 100) : 0;
+    const completedRecords = progressRecords.filter(
+      (p) => p.is_completed,
+    ).length;
+    const completion_rate =
+      totalRecords > 0
+        ? Math.round((completedRecords / totalRecords) * 100)
+        : 0;
 
-    const scoredRecords = progressRecords.filter(p => p.score !== undefined && p.score !== null);
-    const average_score = scoredRecords.length > 0
-      ? Number((scoredRecords.reduce((sum, p) => sum + p.score!, 0) / scoredRecords.length).toFixed(1))
-      : null;
+    const scoredRecords = progressRecords.filter(
+      (p) => p.score !== undefined && p.score !== null,
+    );
+    const average_score =
+      scoredRecords.length > 0
+        ? Number(
+            (
+              scoredRecords.reduce((sum, p) => sum + p.score!, 0) /
+              scoredRecords.length
+            ).toFixed(1),
+          )
+        : null;
 
     const recent_lessons = progressRecords.slice(0, 3).map((p: any) => ({
       lesson_name: p.lesson_id?.title || 'Bài học không xác định',
-      status: p.is_completed ? 'Hoàn thành' : 'Chưa hoàn thành'
+      status: p.is_completed ? 'Hoàn thành' : 'Chưa hoàn thành',
     }));
 
     return {
@@ -603,7 +620,7 @@ export class UsersService {
           average_score,
         },
         recent_lessons,
-      }
+      },
     };
   }
 }

@@ -31,13 +31,20 @@ export class StoreService {
     private readonly uploadsService: UploadsService,
   ) {}
 
-  async createStoreItem(teacherId: string, createDto: any, image?: Express.Multer.File) {
+  async createStoreItem(
+    teacherId: string,
+    createDto: any,
+    image?: Express.Multer.File,
+  ) {
     let imageUrl = '';
     if (image) {
-      const uploadResult = await this.uploadsService.uploadImage(image, 'edu-platform/store-items');
+      const uploadResult = await this.uploadsService.uploadImage(
+        image,
+        'edu-platform/store-items',
+      );
       imageUrl = uploadResult.secure_url;
     }
-    
+
     return this.storeItemModel.create({
       ...createDto,
       image_url: imageUrl,
@@ -45,14 +52,21 @@ export class StoreService {
     });
   }
 
-  async updateStoreItem(teacherId: string, itemId: string, updateDto: any, image?: Express.Multer.File) {
+  async updateStoreItem(
+    teacherId: string,
+    itemId: string,
+    updateDto: any,
+    image?: Express.Multer.File,
+  ) {
     const existingItem = await this.storeItemModel.findOne({
       _id: new Types.ObjectId(itemId),
       teacher_id: new Types.ObjectId(teacherId),
     });
 
     if (!existingItem) {
-      throw new NotFoundException('Store item not found or you do not have permission');
+      throw new NotFoundException(
+        'Store item not found or you do not have permission',
+      );
     }
 
     const updatePayload = { ...updateDto };
@@ -61,7 +75,10 @@ export class StoreService {
       if (existingItem.image_url) {
         await this.uploadsService.deleteFileByUrl(existingItem.image_url);
       }
-      const uploadResult = await this.uploadsService.uploadImage(image, 'edu-platform/store-items');
+      const uploadResult = await this.uploadsService.uploadImage(
+        image,
+        'edu-platform/store-items',
+      );
       updatePayload.image_url = uploadResult.secure_url;
     }
 

@@ -45,7 +45,10 @@ export class CoursesService {
 
     let thumbnailUrl = '';
     if (thumbnail) {
-      const uploadResult = await this.uploadsService.uploadImage(thumbnail, 'edu-platform/courses');
+      const uploadResult = await this.uploadsService.uploadImage(
+        thumbnail,
+        'edu-platform/courses',
+      );
       thumbnailUrl = uploadResult.secure_url;
     }
 
@@ -116,7 +119,9 @@ export class CoursesService {
     });
 
     if (!existingCourse) {
-      throw new NotFoundException('Không tìm thấy khóa học hoặc bạn không có quyền cập nhật');
+      throw new NotFoundException(
+        'Không tìm thấy khóa học hoặc bạn không có quyền cập nhật',
+      );
     }
 
     const updatePayload: Record<string, unknown> = { ...dto };
@@ -128,7 +133,10 @@ export class CoursesService {
       if (existingCourse.thumbnail_url) {
         await this.uploadsService.deleteFileByUrl(existingCourse.thumbnail_url);
       }
-      const uploadResult = await this.uploadsService.uploadImage(thumbnail, 'edu-platform/courses');
+      const uploadResult = await this.uploadsService.uploadImage(
+        thumbnail,
+        'edu-platform/courses',
+      );
       updatePayload.thumbnail_url = uploadResult.secure_url;
     }
 

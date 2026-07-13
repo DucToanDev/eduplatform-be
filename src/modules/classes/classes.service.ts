@@ -148,7 +148,7 @@ export class ClassesService {
     teacherId: string,
   ) {
     const classDoc = await this.findOwnedClass(classId, teacherId);
-    
+
     if (!dto.student_id && !dto.email) {
       throw new BadRequestException('Vui lòng cung cấp ID học sinh hoặc email');
     }
@@ -280,9 +280,12 @@ export class ClassesService {
     throw new ForbiddenException('Bạn không có quyền xem lớp học này');
   }
 
-  private async findStudent(studentId?: string, email?: string): Promise<UsersDocument> {
+  private async findStudent(
+    studentId?: string,
+    email?: string,
+  ): Promise<UsersDocument> {
     let student;
-    
+
     if (studentId) {
       this.validateObjectId(studentId);
       student = await this.userModel.findOne({
