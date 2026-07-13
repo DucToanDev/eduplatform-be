@@ -15,7 +15,13 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { StoreService } from './store.service';
 import { CreateStoreItemDto, UpdateStoreItemDto } from './dto/store-item.dto';
 import { RedeemItemDto } from './dto/redeem.dto';
-import { ApiTags, ApiBearerAuth, ApiOperation, ApiConsumes, ApiBody } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiBearerAuth,
+  ApiOperation,
+  ApiConsumes,
+  ApiBody,
+} from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../../common/decorators/roles.decorator';

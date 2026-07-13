@@ -102,10 +102,7 @@ export class StudentProfilesController {
   @ApiOperation({ summary: 'Tổng quan học tập dành cho Phụ huynh' })
   @ApiBearerAuth()
   @Get('parent-overview')
-  async getParentOverview(
-    @Req() req,
-    @Query() dto: ParentOverviewRequestDto,
-  ) {
+  async getParentOverview(@Req() req, @Query() dto: ParentOverviewRequestDto) {
     return this.usersService.getParentOverview(req.user.id, dto);
   }
 
