@@ -26,6 +26,7 @@ import { UserRole } from './schemas/users.schema';
 import { UpdateStudentProfileDto } from './dto/update-student-profile.dto';
 import { ParentOverviewRequestDto } from './dto/parent-overview.dto';
 import { CreateStudentDto } from './dto/create-student.dto';
+import { BulkImportStudentsDto } from './dto/bulk-import-students.dto';
 import { StudentProfileResponseDto } from './dto/profile-response.dto';
 import { StudentListResponseDto } from './dto/student-list-response.dto';
 import { StudentProfile } from './schemas/student-profile.schema';
@@ -54,6 +55,20 @@ export class StudentProfilesController {
   createStudent(@Body() dto: CreateStudentDto, @Req() req: any) {
     const teacherId = req.user.id;
     return this.usersService.createStudent(dto, teacherId);
+  }
+
+  @Post('bulk-import')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.TEACHER, UserRole.ADMIN, UserRole.MANAGER)
+  @ApiOperation({ summary: 'Import hàng loạt học sinh bằng file Excel/JSON' })
+  @ApiCreatedResponse({
+    description: 'Import hàng loạt học sinh thành công, trả về danh sách kết quả (thành công/lỗi) cho từng học sinh',
+  })
+  @ApiBadRequestResponse({ description: 'Dữ liệu gửi lên không hợp lệ' })
+  @ApiBearerAuth()
+  bulkImportStudents(@Body() dto: BulkImportStudentsDto, @Req() req: any) {
+    const teacherId = req.user.id;
+    return this.usersService.bulkImportStudents(dto, teacherId);
   }
 
   @Get('by-user/:userId')

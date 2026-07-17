@@ -208,3 +208,28 @@ Table QuizSubmissions {
   score number // score percentage or correct count
   submitted_at timestamp
 }
+
+Table Achievements {
+  id ObjectId [pk]
+  title string
+  description string
+  badge_url string
+  condition_type string // enum ['QUIZ_SCORE', 'LESSON_COMPLETED', 'LOGIN_STREAK', etc]
+  condition_value number // e.g. 100
+  point_reward number // points granted when unlocked
+}
+
+Table Student_Achievements {
+  id ObjectId [pk]
+  student_id ObjectId [ref: > users.id]
+  achievement_id ObjectId [ref: > Achievements.id]
+  unlocked_at timestamp
+}
+
+Table Learning_Paths {
+  id ObjectId [pk]
+  class_id ObjectId [ref: > Classes.id]
+  title string
+  stages json // array of { stage_name, lessons: [ { lesson_id, order_index } ] }
+}
+
