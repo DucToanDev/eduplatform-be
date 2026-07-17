@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { PaginationQueryDto } from '../../common/dto/pagination-query.dto';
 import { PaginatedResponse } from '../../common/interfaces/paginated-response.interface';
 import {
@@ -21,6 +22,7 @@ import {
 import { CreateQuizDto } from './dto/create-quiz.dto';
 import { CreateQuestionDto } from './dto/create-question.dto';
 import { UpdateQuestionDto } from './dto/update-question.dto';
+import { BulkImportQuestionsDto } from './dto/bulk-import-questions.dto';
 import { LessonsService } from '../lesson/lessons.service';
 
 @Injectable()
@@ -32,6 +34,7 @@ export class QuizzesService {
     @InjectModel(QuizSubmission.name)
     private readonly quizSubmissionModel: Model<QuizSubmissionDocument>,
     private readonly lessonsService: LessonsService,
+    private eventEmitter: EventEmitter2,
   ) {}
 
   private async checkQuizOwnershipByQuizDoc(quiz: Quiz, authorId: string) {
@@ -101,6 +104,26 @@ export class QuizzesService {
 
     const newQuestion = new this.questionModel(createQuestionDto);
     return newQuestion.save();
+  }
+
+  async bulkImportQuestions(
+    quizId: string,
+    dto: BulkImportQuestionsDto,
+    authorId: string,
+  ) {
+    const quiz = await this.findQuizById(quizId);
+    await this.checkQuizOwnershipByQuizDoc(quiz, authorId);
+
+    const questionsToInsert = dto.questions.map((q) => ({
+      ...q,
+      quiz_id: new Types.ObjectId(quizId),
+    }));
+
+    const result = await this.questionModel.insertMany(questionsToInsert);
+    return {
+      message: `Đã thêm thành công ${result.length} câu hỏi`,
+      inserted_count: result.length,
+    };
   }
 
   async getQuizzesByCourse(courseId: string): Promise<Quiz[]> {
@@ -216,6 +239,8 @@ export class QuizzesService {
     if (!Types.ObjectId.isValid(quizId))
       throw new BadRequestException('Id không hợp lệ');
 
+    const quiz = await this.quizModel.findById(quizId).exec();
+
     const questions = await this.questionModel
       .find({ quiz_id: new Types.ObjectId(quizId) })
       .exec();
@@ -242,10 +267,12 @@ export class QuizzesService {
       student_id: new Types.ObjectId(studentId),
     };
 
+    const submitted_at = new Date();
+
     const update = {
       answers: submissionAnswers,
       score: score,
-      submitted_at: new Date(),
+      submitted_at,
     };
 
     const submission = await this.quizSubmissionModel
@@ -255,11 +282,21 @@ export class QuizzesService {
       })
       .exec();
 
+    const score_percentage = total > 0 ? (score / total) * 100 : 0;
+    const is_early_submission = quiz?.deadline_at ? submitted_at < quiz.deadline_at : false;
+
+    this.eventEmitter.emit('quiz.submitted', {
+      studentId,
+      score_percentage,
+      is_early_submission,
+      day_of_week: submitted_at.getDay(),
+    });
+
     return {
       submission_id: submission._id,
       total_questions: total,
       correct_answers: score,
-      score_percentage: total > 0 ? (score / total) * 100 : 0,
+      score_percentage,
     };
   }
 
@@ -294,6 +331,7 @@ export class QuizzesService {
     const submission = await this.quizSubmissionModel
       .findById(submissionId)
       .populate('quiz_id', 'title quiz_type')
+      .populate('answers.question_id')
       .exec();
     if (!submission)
       throw new NotFoundException('Không tìm thấy lịch sử nộp bài');

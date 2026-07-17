@@ -8,7 +8,9 @@ import { JwtService } from '@nestjs/jwt';
 import { InjectModel } from '@nestjs/mongoose';
 import * as bcrypt from 'bcryptjs';
 import { Model } from 'mongoose';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { TeacherProfile } from '../users/schemas/teacher-profile.schema';
+import { StudentProfile } from '../users/schemas/student-profile.schema';
 import { UserRole, Users } from '../users/schemas/users.schema';
 import { AuthTokenResponseDto } from './dto/auth-token-response.dto';
 import { LoginDto } from './dto/login.dto';
@@ -34,10 +36,13 @@ export class AuthService {
     private readonly userModel: Model<Users>,
     @InjectModel(TeacherProfile.name)
     private readonly teacherProfileModel: Model<TeacherProfile>,
+    @InjectModel(StudentProfile.name)
+    private readonly studentProfileModel: Model<StudentProfile>,
     @InjectModel(RefreshToken.name)
     private readonly refreshTokenModel: Model<RefreshToken>,
     private readonly jwtService: JwtService,
     private readonly teacherSubsService: TeacherSubscriptionsService,
+    private eventEmitter: EventEmitter2,
   ) {}
 
   private async buildAuthResponse(
@@ -252,6 +257,44 @@ export class AuthService {
       { _id: user._id },
       { $set: { last_login_at: new Date() } },
     );
+
+    const profile = await this.studentProfileModel.findOne({ user_id: user._id });
+    let login_streak = 1;
+    let is_first_login = false;
+    
+    if (profile) {
+      if (!profile.last_login_date) {
+        is_first_login = true;
+      } else {
+        const today = new Date();
+        const lastLogin = new Date(profile.last_login_date);
+        today.setHours(0, 0, 0, 0);
+        lastLogin.setHours(0, 0, 0, 0);
+        
+        const diffTime = Math.abs(today.getTime() - lastLogin.getTime());
+        const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+        
+        if (diffDays === 1) {
+          login_streak = (profile.login_streak || 0) + 1;
+        } else if (diffDays === 0) {
+          login_streak = profile.login_streak || 1;
+        } else {
+          login_streak = 1;
+        }
+      }
+      
+      await this.studentProfileModel.updateOne(
+        { user_id: user._id },
+        { $set: { login_streak, last_login_date: new Date() } }
+      );
+    }
+
+    this.eventEmitter.emit('user.login', {
+      studentId: user._id.toString(),
+      login_streak,
+      is_first_login,
+      day_of_week: new Date().getDay(),
+    });
 
     return await this.buildAuthResponse('Đăng nhập thành công', user);
   }

@@ -26,6 +26,9 @@ export class Quiz {
 
   @Prop()
   order_index?: number;
+
+  @Prop({ type: Date })
+  deadline_at?: Date;
 }
 
 export const QuizSchema = SchemaFactory.createForClass(Quiz);

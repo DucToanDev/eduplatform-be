@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { EventEmitterModule } from '@nestjs/event-emitter';
 import { MongooseModule } from '@nestjs/mongoose';
 import { AppController } from './app.controller';
 import { getMongooseConfig } from './config/database.config';
@@ -24,12 +25,15 @@ import { ErrorLogsModule } from './modules/error-logs/error-logs.module';
 import { StoreModule } from './modules/store/store.module';
 import { PointsModule } from './modules/points/points.module';
 import { LearningRewardsModule } from './modules/learning-rewards/learning-rewards.module';
+import { AchievementsModule } from './modules/achievements/achievements.module';
+import { LearningPathsModule } from './modules/learning-paths/learning-paths.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
       envFilePath: '.env',
       isGlobal: true,
     }),
+    EventEmitterModule.forRoot(),
     MongooseModule.forRootAsync({
       inject: [ConfigService],
       useFactory: getMongooseConfig,
@@ -55,6 +59,8 @@ import { LearningRewardsModule } from './modules/learning-rewards/learning-rewar
     StoreModule,
     PointsModule,
     LearningRewardsModule,
+    AchievementsModule,
+    LearningPathsModule,
   ],
   controllers: [AppController],
   providers: [],

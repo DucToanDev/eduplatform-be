@@ -14,6 +14,8 @@ import { QuizzesService } from './quizzes.service';
 import { CreateQuizDto } from './dto/create-quiz.dto';
 import { CreateQuestionDto } from './dto/create-question.dto';
 import { UpdateQuestionDto } from './dto/update-question.dto';
+import { BulkImportQuestionsDto } from './dto/bulk-import-questions.dto';
+import { SubmitQuizDto } from './dto/submit-quiz.dto';
 import { PaginationQueryDto } from '../../common/dto/pagination-query.dto';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -42,6 +44,19 @@ export class QuizzesController {
   @ApiOperation({ summary: 'Thêm câu hỏi vào Quiz (dành cho Giáo viên)' })
   createQuestion(@Request() req, @Body() createQuestionDto: CreateQuestionDto) {
     return this.quizzesService.createQuestion(createQuestionDto, req.user.id);
+  }
+
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.TEACHER)
+  @Post(':id/questions/bulk-import')
+  @ApiOperation({ summary: 'Import hàng loạt câu hỏi vào Quiz bằng file (JSON)' })
+  bulkImportQuestions(
+    @Param('id') id: string,
+    @Request() req,
+    @Body() dto: BulkImportQuestionsDto,
+  ) {
+    return this.quizzesService.bulkImportQuestions(id, dto, req.user.id);
   }
 
   @ApiBearerAuth()
@@ -82,10 +97,9 @@ export class QuizzesController {
   submitQuiz(
     @Param('id') id: string,
     @Request() req,
-    @Body()
-    body: { answers: { question_id: string; selected_index: number }[] },
+    @Body() submitQuizDto: SubmitQuizDto,
   ) {
-    return this.quizzesService.submitQuiz(id, body.answers, req.user.id);
+    return this.quizzesService.submitQuiz(id, submitQuizDto.answers, req.user.id);
   }
 
   // --- QUESTION BANK & QUESTION CRUD ---
