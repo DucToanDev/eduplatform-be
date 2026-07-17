@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import {
   ClassEnrollment,
   ClassEnrollmentDocument,
@@ -35,6 +36,7 @@ export class ProgressService {
     private readonly classModel: Model<ClassDocument>,
     @InjectModel(ClassEnrollment.name)
     private readonly classEnrollmentModel: Model<ClassEnrollmentDocument>,
+    private eventEmitter: EventEmitter2,
   ) {}
 
   private validateObjectId(id: string): void {
@@ -95,6 +97,18 @@ export class ProgressService {
       },
     );
 
+    if (dto.is_completed) {
+      const total_completed_lessons = await this.progressModel.countDocuments({
+        student_id: new Types.ObjectId(studentId),
+        is_completed: true,
+      });
+
+      this.eventEmitter.emit('lesson.completed', {
+        studentId,
+        total_completed_lessons,
+      });
+    }
+
     return {
       message: 'Cập nhật tiến độ học tập thành công',
       data: progress,
@@ -117,6 +131,18 @@ export class ProgressService {
     progress.is_completed = isCompleted;
     progress.completed_at = isCompleted ? new Date() : undefined;
     await progress.save();
+
+    if (isCompleted) {
+      const total_completed_lessons = await this.progressModel.countDocuments({
+        student_id: new Types.ObjectId(studentId),
+        is_completed: true,
+      });
+
+      this.eventEmitter.emit('lesson.completed', {
+        studentId,
+        total_completed_lessons,
+      });
+    }
 
     return {
       message: 'Cập nhật trạng thái hoàn thành thành công',

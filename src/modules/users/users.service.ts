@@ -8,6 +8,7 @@ import {
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, QueryFilter, Types } from 'mongoose';
 import * as bcrypt from 'bcryptjs';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import {
   buildPaginatedResponse,
   getPaginationSkip,
@@ -41,6 +42,7 @@ import { UpdateUserRoleDto } from './dto/update-user-role.dto';
 import { UpdateUserStatusDto } from './dto/update-user-status.dto';
 import { ParentOverviewRequestDto } from './dto/parent-overview.dto';
 import { UserQueryDto } from './dto/user-query.dto';
+import { BulkImportStudentsDto } from './dto/bulk-import-students.dto';
 import {
   StudentProgress,
   StudentProgressDocument,
@@ -87,6 +89,7 @@ export class UsersService {
     @InjectModel(StudentProgress.name)
     private readonly studentProgressModel: Model<StudentProgressDocument>,
     private readonly uploadsService: UploadsService,
+    private eventEmitter: EventEmitter2,
   ) {}
 
   async updateAvatar(
@@ -116,6 +119,10 @@ export class UsersService {
     if (!user) {
       throw new NotFoundException('Không tìm thấy người dùng');
     }
+
+    this.eventEmitter.emit('user.avatar_updated', {
+      studentId: user._id.toString(),
+    });
 
     return {
       message: 'Cập nhật avatar thành công',
@@ -461,6 +468,36 @@ export class UsersService {
       }
       throw error;
     }
+  }
+
+  async bulkImportStudents(dto: BulkImportStudentsDto, teacherId: string) {
+    const results: any[] = [];
+    let successCount = 0;
+    let errorCount = 0;
+    
+    for (const studentDto of dto.students) {
+      try {
+        const result = await this.createStudent(studentDto, teacherId);
+        successCount++;
+        results.push({
+          status: 'success',
+          fullname: studentDto.fullname,
+          data: result,
+        });
+      } catch (error: any) {
+        errorCount++;
+        results.push({
+          status: 'error',
+          fullname: studentDto.fullname,
+          error: error.message,
+        });
+      }
+    }
+    
+    return {
+      message: `Import hoàn tất. Thành công: ${successCount}, Lỗi: ${errorCount}`,
+      results,
+    };
   }
 
   async getStudentsByClassId(

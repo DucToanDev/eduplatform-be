@@ -27,6 +27,12 @@ export class StudentProfile {
 
   @Prop({ type: String, trim: true })
   parent_access_codes?: string;
+
+  @Prop({ type: Number, default: 0 })
+  login_streak: number;
+
+  @Prop({ type: Date })
+  last_login_date?: Date;
 }
 
 export type StudentProfileDocument = HydratedDocument<StudentProfile>;
