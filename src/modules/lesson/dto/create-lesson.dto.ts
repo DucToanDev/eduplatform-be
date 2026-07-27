@@ -5,6 +5,7 @@ import {
   IsNotEmpty,
   IsOptional,
   IsString,
+  IsArray,
   IsUrl,
   Min,
 } from 'class-validator';
@@ -51,4 +52,14 @@ export class CreateLessonDto {
   @Min(0)
   @IsOptional()
   order_index?: number;
+
+  @ApiPropertyOptional({
+    example: ['60c72b2f9b1d8b001c8e4b5a', '60c72b2f9b1d8b001c8e4b5b'],
+    description: 'Danh sách ID bài học tiên quyết cần hoàn thành trước khi mở khóa bài này',
+    type: [String],
+  })
+  @IsOptional()
+  @IsArray()
+  @IsMongoId({ each: true })
+  prerequisite_lessons?: string[];
 }

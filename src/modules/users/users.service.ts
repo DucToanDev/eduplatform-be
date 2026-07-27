@@ -472,6 +472,7 @@ export class UsersService {
 
   async bulkImportStudents(dto: BulkImportStudentsDto, teacherId: string) {
     const results: any[] = [];
+    const duplicate_usernames: string[] = [];
     let successCount = 0;
     let errorCount = 0;
     
@@ -486,9 +487,18 @@ export class UsersService {
         });
       } catch (error: any) {
         errorCount++;
+
+        if (
+          error.message === 'Tên đăng nhập này đã tồn tại trong hệ thống' &&
+          studentDto.username
+        ) {
+          duplicate_usernames.push(studentDto.username);
+        }
+
         results.push({
           status: 'error',
           fullname: studentDto.fullname,
+          username: studentDto.username,
           error: error.message,
         });
       }
@@ -496,6 +506,7 @@ export class UsersService {
     
     return {
       message: `Import hoàn tất. Thành công: ${successCount}, Lỗi: ${errorCount}`,
+      duplicate_usernames,
       results,
     };
   }

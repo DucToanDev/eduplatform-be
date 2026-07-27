@@ -60,8 +60,8 @@ export class LessonsController {
   @Get(':id')
   @ApiOperation({ summary: 'Lấy chi tiết một bài học theo ID' })
   @ApiParam({ name: 'id', type: 'string', description: 'ID của bài học' })
-  findOne(@Param('id') id: string) {
-    return this.lessonsService.findOne(id);
+  findOne(@Param('id') id: string, @Request() req) {
+    return this.lessonsService.findOne(id, req.user);
   }
 
   @Patch(':id')

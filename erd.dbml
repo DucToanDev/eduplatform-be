@@ -74,6 +74,7 @@ Table Lessons {
   video_url string
   order_index number
   unlock_condition varchar
+  prerequisite_lessons array [note: "Array of Lesson ObjectIds"]
 }
 
 Table Student_Progress {

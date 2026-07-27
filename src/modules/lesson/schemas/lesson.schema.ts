@@ -23,6 +23,9 @@ export class Lesson {
   @Prop()
   unlock_condition: string;
 
+  @Prop({ type: [{ type: Types.ObjectId, ref: 'Lesson' }], default: [] })
+  prerequisite_lessons: Types.ObjectId[];
+
   @Prop({ default: false })
   is_deleted: boolean;
 }
