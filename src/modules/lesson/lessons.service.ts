@@ -16,12 +16,18 @@ import { ClassesService } from '../classes/classes.service';
 import { CreateLessonDto } from './dto/create-lesson.dto';
 import { UpdateLessonDto } from './dto/update-lesson.dto';
 import { Lesson, LessonDocument } from './schemas/lesson.schema';
+import {
+  StudentProgress,
+  StudentProgressDocument,
+} from '../progress/schemas/student-progress.schema';
 
 @Injectable()
 export class LessonsService {
   constructor(
     @InjectModel(Lesson.name)
     private readonly lessonModel: Model<LessonDocument>,
+    @InjectModel(StudentProgress.name)
+    private readonly studentProgressModel: Model<StudentProgressDocument>,
     private readonly classesService: ClassesService,
   ) {}
 
@@ -76,7 +82,7 @@ export class LessonsService {
     return lessons.map((l) => l._id.toString());
   }
 
-  async findOne(id: string): Promise<Lesson> {
+  async findOne(id: string, user?: { id: string; role: string }): Promise<Lesson> {
     this.validateObjectId(id);
 
     const lesson = await this.lessonModel
@@ -85,6 +91,22 @@ export class LessonsService {
 
     if (!lesson) {
       throw new NotFoundException(`Không tìm thấy bài học với ID #${id}`);
+    }
+
+    if (user && user.role === 'student') {
+      if (lesson.prerequisite_lessons && lesson.prerequisite_lessons.length > 0) {
+        const completedCount = await this.studentProgressModel.countDocuments({
+          student_id: new Types.ObjectId(user.id),
+          lesson_id: { $in: lesson.prerequisite_lessons },
+          is_completed: true,
+        });
+
+        if (completedCount < lesson.prerequisite_lessons.length) {
+          throw new ForbiddenException(
+            'Bạn cần hoàn thành các bài học trước để mở khóa bài học này',
+          );
+        }
+      }
     }
 
     return lesson;

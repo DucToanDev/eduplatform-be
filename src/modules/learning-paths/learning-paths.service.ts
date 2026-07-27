@@ -34,7 +34,7 @@ export class LearningPathsService {
 
     const path = await this.learningPathModel
       .findOne({ class_id: new Types.ObjectId(classId) })
-      .populate('stages.lessons.lesson_id', 'title type duration')
+      .populate('stages.lessons.lesson_id', 'title type duration prerequisite_lessons')
       .lean()
       .exec();
 
@@ -42,10 +42,22 @@ export class LearningPathsService {
 
     if (!studentId) return path;
 
-    const lessonIds = path.stages.flatMap(stage => stage.lessons.map(l => (l as any).lesson_id._id));
+    const lessonIdsToFetchProgress = new Set<string>();
+    path.stages.forEach(stage => {
+      stage.lessons.forEach(l => {
+        const lessonObj = (l as any).lesson_id;
+        if (lessonObj) {
+          lessonIdsToFetchProgress.add(lessonObj._id.toString());
+          if (lessonObj.prerequisite_lessons && Array.isArray(lessonObj.prerequisite_lessons)) {
+            lessonObj.prerequisite_lessons.forEach((id: any) => lessonIdsToFetchProgress.add(id.toString()));
+          }
+        }
+      });
+    });
+
     const progressRecords = await this.studentProgressModel.find({
       student_id: new Types.ObjectId(studentId),
-      lesson_id: { $in: lessonIds }
+      lesson_id: { $in: Array.from(lessonIdsToFetchProgress).map(id => new Types.ObjectId(id)) }
     }).lean().exec();
 
     const progressMap = new Map();
@@ -53,10 +65,21 @@ export class LearningPathsService {
 
     path.stages = path.stages.map(stage => {
       stage.lessons = stage.lessons.map(lesson => {
-        const lid = (lesson as any).lesson_id._id.toString();
+        const lessonObj = (lesson as any).lesson_id;
+        const lid = lessonObj._id.toString();
         const progress = progressMap.get(lid);
+
+        let is_locked = false;
+        if (lessonObj.prerequisite_lessons && lessonObj.prerequisite_lessons.length > 0) {
+          is_locked = lessonObj.prerequisite_lessons.some((prereqId: any) => {
+            const preReqProgress = progressMap.get(prereqId.toString());
+            return !preReqProgress || !preReqProgress.is_completed;
+          });
+        }
+
         return {
           ...lesson,
+          is_locked,
           progress: progress ? {
             is_completed: progress.is_completed,
             score: progress.score,

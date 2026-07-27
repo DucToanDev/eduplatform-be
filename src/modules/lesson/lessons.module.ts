@@ -9,12 +9,17 @@ import {
   LessonMaterial,
   LessonMaterialSchema,
 } from './schemas/lesson-material.schema';
+import {
+  StudentProgress,
+  StudentProgressSchema,
+} from '../progress/schemas/student-progress.schema';
 
 @Module({
   imports: [
     MongooseModule.forFeature([
       { name: Lesson.name, schema: LessonSchema },
       { name: LessonMaterial.name, schema: LessonMaterialSchema },
+      { name: StudentProgress.name, schema: StudentProgressSchema },
     ]),
     AuthModule,
     ClassesModule,
